@@ -1,12 +1,12 @@
-Tempate.registerHelper('owner', function() {
+Template.registerHelper('owner', function() {
   return Session.get("owner")
 })
 
-Tempate.registerHelper('repo', function() {
+Template.registerHelper('repo', function() {
   return Session.get("repo")
 })
 
 
-Tempate.registerHelper('path', function() {
+Template.registerHelper('path', function() {
   return Session.get("path")
 })
