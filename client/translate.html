@@ -1,0 +1,15 @@
+<template name="translate">
+    <h1>Translate from {{fromLanguageName}} to {{toLanguageName}}</h1>
+    {{> error "translate"}}
+
+    {{#if loading}}
+        {{> spinner}}
+    {{else}}
+        Text keys:
+        <ul>
+            {{#each languageTexts}}
+                <li><b>{{key}}:</b> {{text}}</li>
+            {{/each}}
+        </ul>
+    {{/if}}
+</template>

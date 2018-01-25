@@ -24,3 +24,5 @@ twbs:bootstrap
 iron:router
 
 tap:i18n
+http
+bshamblen:iso-languages

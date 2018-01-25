@@ -1,0 +1,26 @@
+<template name="languages">
+    <h1>What would you like to translate?</h1>
+
+
+    {{> error}}
+
+    {{#if loading}}
+        {{> spinner}}
+    {{else}}
+        Translate from
+        <select class="fromLanguageCode">
+            {{#each projectLanguages}}
+                <option value="{{languageCode}}">{{languageName}}</option>
+            {{/each}}
+        </select>
+        to
+        <select class="toLanguageCode">
+            {{#each allLanguages}}
+                <option value="{{languageCode}}">{{languageName}}</option>
+            {{/each}}
+        </select>
+        <div><button class="btn btn-primary submitButton">Ok let's do it!</button></div>
+    {{/if}}
+
+
+</template>
