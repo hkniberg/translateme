@@ -1,4 +1,22 @@
 <template name="submitTranslation">
+    {{> projectInfo}}
+
     <h1>Submit your translation</h1>
+
+    {{#if error "submitTranslation"}}
+        {{> error "submitTranslation"}}
+    {{else}}
+        <div class="translationPreview">
+            {{fullTranslation}}
+        </div>
+        {{#if submitPressed}}
+            <ul>
+                <li><b>Fork:</b>{{forkStatus}}</li>
+                <li><b>Commit:</b>{{commitStatus}}</li>
+            </ul>
+        {{else}}
+            <button class="btn btn-danger submitButton">Fork the project and submit a pull request</button>
+        {{/if}}
+    {{/if}}
 
 </template>

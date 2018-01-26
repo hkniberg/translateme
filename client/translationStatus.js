@@ -10,3 +10,12 @@ export function getTranslatedText(key) {
   return Session.get("translatedText-" + key)
 }
 
+
+export function setFullTranslation(fullTranslation) {
+  console.assert(fullTranslation, "fullTranslation is required")
+  Session.set("fullTranslation", fullTranslation)
+}
+
+export function getFullTranslation() {
+  return Session.get("fullTranslation")
+}

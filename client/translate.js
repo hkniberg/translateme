@@ -7,6 +7,7 @@ import {cacheGoogleTranslation} from "./googleTranslationCache";
 import {setTranslatedText} from "./translationStatus";
 import {getTranslatedText} from "./translationStatus";
 import {getGitHubAccessToken} from "./authentication";
+import {setFullTranslation} from "./translationStatus";
 
 const languageTextsVar = new ReactiveVar()
 
@@ -125,6 +126,7 @@ Template.translate.events({
   },
 
   "click .submitButton"(event) {
+    setFullTranslation(getAllTranslatedText())
     Router.go("submitTranslation", {
       owner: this.owner,
       repo: this.repo,
@@ -134,6 +136,13 @@ Template.translate.events({
   }
 })
 
+/**
+ * Returns the full translation as an object, like this:
+ * {
+ *   title: "My cool site",
+ *   greeting: "Hello there"
+ * }
+ */
 function getAllTranslatedText() {
   const allTranslatedText = {}
   languageTextsVar.get().forEach((languageText) => {

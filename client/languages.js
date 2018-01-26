@@ -4,6 +4,7 @@ import {setError} from "./helpers";
 import {clearError} from "./helpers";
 import {getAllLanguages} from "../lib/data/languages";
 import {getGitHubAccessToken} from "./authentication";
+import {signInToGitHub} from "./gitHubClientUtil";
 
 const projectLanguagesVar = new ReactiveVar()
 const selectedLanguageCodeVar = new ReactiveVar()
@@ -69,20 +70,8 @@ Template.languages.events({
   },
 
   "click .gitHubSignInButton"() {
-    const data = Template.currentData()
-    const state = JSON.stringify({
-      owner: data.owner,
-      repo: data.repo
-    })
-    console.log("data", data)
-    console.log("state", state)
+    signInToGitHub()
 
-    const clientId = "2b90217e4a815fbf42ff" //TEMP
-    let url = "https://github.com/login/oauth/authorize"
-    url = url + "?client_id=" + clientId
-    url = url + "&scope=repos"
-    //url = url + "&state=" + state
 
-    window.open(url, "_self")
   }
 })
