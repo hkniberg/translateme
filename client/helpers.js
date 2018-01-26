@@ -31,7 +31,15 @@ export function getError(context) {
 
 export function setError(context, description, err) {
   console.log("setError called", description, err)
-  Session.set("error " + context, description)
+  if (err) {
+    if (err.reason) {
+      Session.set("error " + context, description + "\n" + err.reason)
+    } else {
+      Session.set("error " + context, description + "\n" + err)
+    }
+  } else {
+    Session.set("error " + context, description)
+  }
 }
 
 export function clearError(context) {

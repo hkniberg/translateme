@@ -1,25 +1,37 @@
 <template name="languages">
-    <h1>What would you like to translate?</h1>
-
-
-    {{> error}}
+    {{> projectInfo}}
+    {{> error "languages"}}
 
     {{#if loading}}
         {{> spinner}}
     {{else}}
-        Translate from
-        <select class="fromLanguageCode">
-            {{#each projectLanguages}}
-                <option value="{{languageCode}}">{{languageName}}</option>
-            {{/each}}
-        </select>
-        to
-        <select class="toLanguageCode">
-            {{#each allLanguages}}
-                <option value="{{languageCode}}">{{languageName}}</option>
-            {{/each}}
-        </select>
-        <div><button class="btn btn-primary submitButton">Ok let's do it!</button></div>
+        {{#if gitHubError}}
+            <h1>This project might be private</h1>
+
+            <p>Either the project doesn't exist, or the project is non-public and you need to sign in.</p>
+            <div><a href="/selectProject">Select another project</a></div>
+            <div><button class="btn btn-primary gitHubSignInButton">Sign in to GitHub</button></div>
+
+        {{/if}}
+
+
+        {{#if projectLanguages}}
+            <h1>What would you like to translate?</h1>
+
+            Translate from
+            <select class="fromLanguageCode">
+                {{#each projectLanguages}}
+                    <option value="{{languageCode}}">{{languageName}}</option>
+                {{/each}}
+            </select>
+            to
+            <select class="toLanguageCode">
+                {{#each allLanguages}}
+                    <option value="{{languageCode}}">{{languageName}}</option>
+                {{/each}}
+            </select>
+            <div><button class="btn btn-primary submitButton">Ok let's do it!</button></div>
+        {{/if}}
     {{/if}}
 
 
