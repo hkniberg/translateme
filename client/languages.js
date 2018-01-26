@@ -3,6 +3,7 @@ import {setLoading} from "./helpers";
 import {setError} from "./helpers";
 import {clearError} from "./helpers";
 import {getAllLanguages} from "../lib/data/languages";
+import {getGitHubAccessToken} from "./authentication";
 
 const projectLanguagesVar = new ReactiveVar()
 const selectedLanguageCodeVar = new ReactiveVar()
@@ -10,11 +11,13 @@ const isGitHubErrorVar = new ReactiveVar()
 
 Template.languages.onRendered(function() {
   setLoading(true)
+  isGitHubErrorVar.set(false)
   clearError("languages")
 
   const data = Template.currentData()
 
-  Meteor.call("getLanguages", data.owner, data.repo, function(err, languages) {
+  console.log("calling getLanguages with gitHubAccessToken", getGitHubAccessToken())
+  Meteor.call("getLanguages", data.owner, data.repo, getGitHubAccessToken(), function(err, languages) {
     setLoading(false)
     if (err) {
       if (err.error = "gitHubError") {
@@ -74,12 +77,12 @@ Template.languages.events({
     console.log("data", data)
     console.log("state", state)
 
-    const clientId = "2b90217e4a815fbf42ff"
+    const clientId = "2b90217e4a815fbf42ff" //TEMP
     let url = "https://github.com/login/oauth/authorize"
     url = url + "?client_id=" + clientId
     url = url + "&scope=repos"
-    url = url + "&state=" + state
+    //url = url + "&state=" + state
 
-    window.open(url)//, "_self")
+    window.open(url, "_self")
   }
 })
