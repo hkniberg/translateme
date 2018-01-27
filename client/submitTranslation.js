@@ -2,13 +2,11 @@ import {getFullTranslation} from "./translationStatus";
 import {clearError} from "./helpers";
 import {setError} from "./helpers";
 import {getGitHubAccessToken} from "./authentication";
+import {getLanguageName} from "../lib/data/languages";
 
-const submitPressed = new ReactiveVar(false)
-const isDone = new ReactiveVar(false)
+const submittingVar = new ReactiveVar(false)
+const resultVar = new ReactiveVar(false)
 
-const forkStatus = new ReactiveVar("To Do")
-const commitStatus = new ReactiveVar("To Do")
-const pullStatus = new ReactiveVar("To Do")
 
 Template.submitTranslation.onRendered(function() {
   clearError("submitTranslation")
@@ -17,39 +15,54 @@ Template.submitTranslation.onRendered(function() {
   console.assert(data.repo, "Missing repo")
   console.assert(data.fromLanguageCode, "Missing owner")
   console.assert(data.toLanguageCode, "Missing owner")
+
   const fullTranslation = getFullTranslation()
   if (!fullTranslation) {
     setError("submitTranslation", "Looks like your session has expired!")
   }
-  isDone.set(false)
 })
 
 
 Template.submitTranslation.helpers({
-  submitPressed() {
-    return submitPressed.get()
+  submitting() {
+    return submittingVar.get()
   },
 
-  done() {
-    return isDone.get()
+  result() {
+    return resultVar.get()
+  },
+
+  commitUrl() {
+    if (resultVar.get()) {
+      return resultVar.get().commitUrl
+    }
+  },
+
+  pullRequestUrl() {
+    if (resultVar.get()) {
+      return resultVar.get().pullRequestUrl
+    }
+  },
+
+  pullRequestAlreadyExisted() {
+    if (resultVar.get()) {
+      return resultVar.get().pullRequestAlreadyExisted
+    }
+  },
+
+  log() {
+    if (resultVar.get()) {
+      return resultVar.get().log
+    }
   },
 
   fullTranslation() {
     return JSON.stringify(getFullTranslation())
   },
 
-  forkStatus() {
-    return forkStatus.get()
-  },
-
-  commitStatus() {
-    return commitStatus.get()
-  },
-
-  pullStatus() {
-    return pullStatus.get()
+  toLanguageName() {
+    return getLanguageName(this.toLanguageCode)
   }
-
 })
 
 Template.submitTranslation.events({
@@ -59,63 +72,22 @@ Template.submitTranslation.events({
 })
 
 function submit() {
+  clearError("submitTranslation")
   const data = Template.currentData()
   const fullTranslation = getFullTranslation()
-  submitPressed.set(true)
-  forkStatus.set("Doing...")
-  console.log("calling forkRepo...")
+  const comment = $(".commentInput").val()
+  submittingVar.set(true)
+  resultVar.set(null)
 
-  Meteor.call("forkRepo", data.owner, data.repo, getGitHubAccessToken(), function(err, result) {
+  console.log("calling submitTranslation...")
+  Meteor.call("submitTranslation", data.owner, data.repo, data.fromLanguageCode, data.toLanguageCode, fullTranslation, comment,  getGitHubAccessToken(), function(err, result) {
+    console.log("Done!", err, result)
+    submittingVar.set(false)
     if (err) {
-      forkStatus.set("Failed!")
       setError("submitTranslation", "forkRepo method failed!", err)
       return
     }
-    forkStatus.set("Done!")
-
-    commitStatus.set("Doing...")
-    Meteor.call("commit", data.owner, data.repo, data.toLanguageCode, fullTranslation, getGitHubAccessToken(), function(err, result) {
-      if (err) {
-        commitStatus.set("Failed!")
-        setError("submitTranslation", "commit method failed!", err)
-        return
-      }
-      commitStatus.set("Done!")
-
-      isDone.set(true)
-
-    })
-    
-    
-    
+    resultVar.set(result)
   })
-
-  //Fork the project
-
-
-  //Add the file
-  //Commit
-  //Send pull request
 }
 
-function setDoing(action) {
-  setStatus(action, "Doing...")
-}
-
-function setDone(action) {
-  setStatus(action, "Done!")
-}
-
-function setFailed(action) {
-  setStatus(action, "Failed!")
-}
-
-function setStatus(action, status) {
-  const checklist = checklistVar.get()
-  checklist.forEach((item) => {
-    if (item.action == action) {
-      item.status = status
-    }
-  })
-  checklistVar.set(checklist)
-}

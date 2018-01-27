@@ -3,20 +3,53 @@
 
     <h1>Submit your translation</h1>
 
-    {{#if error "submitTranslation"}}
-        {{> error "submitTranslation"}}
+    <div class="translationPreview">
+        {{fullTranslation}}
+    </div>
+
+    {{#if submitting}}
+        <div>Doing some github voodoo...</div>
+        {{> spinner}}
     {{else}}
-        <div class="translationPreview">
-            {{fullTranslation}}
-        </div>
-        {{#if submitPressed}}
-            <ul>
-                <li><b>Fork:</b>{{forkStatus}}</li>
-                <li><b>Commit:</b>{{commitStatus}}</li>
-            </ul>
-        {{else}}
-            <button class="btn btn-danger submitButton">Fork the project and submit a pull request</button>
-        {{/if}}
+        {{#unless result}}
+            <div><b>Comment:</b></div>
+            <textarea cols="60" rows="3" class="commentInput">Hi! Here's a translation to {{toLanguageName}}.</textarea>
+            <div><button class="btn btn-danger submitButton">Submit your translation via github</button></div>
+        {{/unless}}
     {{/if}}
+
+    {{#if result}}
+        <p class="alert alert-success">
+            <b>Done! Your translation has been commited to github!</b><br>
+            {{#if pullRequestUrl}}
+                {{#if pullRequestAlreadyExisted}}
+                    A pull request already existed from before<br>
+                {{else}}
+                    A pull request has been sent to the repo owner.<br>
+                {{/if}}
+                <p>Here is a <a href="{{pullRequestUrl}}">Link to the pull request</a> if you are curious.</p>
+            {{else}}
+                {{#if commitUrl}}
+                    <p>Here is a <a href="{{commitUrl}}">Link to your commit</a> if you are curious.</p>
+                {{/if}}
+            {{/if}}
+
+        </p>
+        <h3>Gory technical details</h3>
+        <div class="log">
+            <ul>
+            {{#each log}}
+                <li>{{this}}</li>
+            {{/each}}
+            </ul>
+        </div>
+
+
+
+
+    {{/if}}
+
+    {{> error "submitTranslation"}}
+
 
 </template>

@@ -1,6 +1,6 @@
 import { Meteor } from 'meteor/meteor';
 
 Meteor.startup(() => {
+  //Make clientId available to the client
   Meteor.settings.public.clientId = process.env.oauthClientId
-  console.log("set clientId to " + Meteor.settings.public.clientId)
 });
