@@ -57,7 +57,7 @@ Template.submitTranslation.helpers({
   },
 
   fullTranslation() {
-    return JSON.stringify(getFullTranslation())
+    return JSON.stringify(getFullTranslation(), null, 2)
   },
 
   toLanguageName() {

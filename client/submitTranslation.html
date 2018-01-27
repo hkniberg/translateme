@@ -3,53 +3,70 @@
 
     <h1>Submit your translation</h1>
 
-    <div class="translationPreview">
-        {{fullTranslation}}
-    </div>
+    <div class="row">
+        <div class="col col-xs-6">
 
-    {{#if submitting}}
-        <div>Doing some github voodoo...</div>
-        {{> spinner}}
-    {{else}}
-        {{#unless result}}
-            <div><b>Comment:</b></div>
-            <textarea cols="60" rows="3" class="commentInput">Hi! Here's a translation to {{toLanguageName}}.</textarea>
-            <div><button class="btn btn-danger submitButton">Submit your translation via github</button></div>
-        {{/unless}}
-    {{/if}}
-
-    {{#if result}}
-        <p class="alert alert-success">
-            <b>Done! Your translation has been commited to github!</b><br>
-            {{#if pullRequestUrl}}
-                {{#if pullRequestAlreadyExisted}}
-                    A pull request already existed from before<br>
-                {{else}}
-                    A pull request has been sent to the repo owner.<br>
-                {{/if}}
-                <p>Here is a <a href="{{pullRequestUrl}}">Link to the pull request</a> if you are curious.</p>
+            {{#if submitting}}
+                <div>Doing some github voodoo...</div>
+                {{> spinner}}
             {{else}}
-                {{#if commitUrl}}
-                    <p>Here is a <a href="{{commitUrl}}">Link to your commit</a> if you are curious.</p>
-                {{/if}}
+                {{#unless result}}
+                    <div><b>Comment:</b></div>
+                    <textarea class="commentInput">Hi! Here's a translation to {{toLanguageName}}.</textarea>
+                    <div><button class="btn btn-primary submitButton">Submit your translation via github</button></div>
+                {{/unless}}
             {{/if}}
 
-        </p>
-        <h3>Gory technical details</h3>
-        <div class="log">
-            <ul>
-            {{#each log}}
-                <li>{{this}}</li>
-            {{/each}}
-            </ul>
+            {{#if result}}
+                <div class="alert alert-success">
+                    <b>Done!</b><br>
+                    Your translation has been sent.<br>
+                    {{#if pullRequestUrl}}
+                        <p><a href="{{pullRequestUrl}}" target="github">Here is what the owner received</a></p>
+                    {{else}}
+                        {{#if commitUrl}}
+                            <p>Here is a <a href="{{commitUrl}}" target="github">Link to your commit</a> if you are curious.</p>
+                        {{/if}}
+                    {{/if}}
+                </div>
+
+                <a class="btn btn-link" role="button" data-toggle="collapse" href="#goryDetails" aria-expanded="false" aria-controls="goryDetails">
+                    See the gory technical details
+                </a>
+                <div class="collapse" id="goryDetails">
+                    <div class="well">
+                        <div class="log">
+                            <ul>
+                                {{#each log}}
+                                    <li>{{this}}</li>
+                                {{/each}}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+
+
+
+
+            {{/if}}
+
+            {{> error "submitTranslation"}}
+
+        </div>
+
+        <div class="col col-xs-6">
+            <div class="translationPreview">
+                {{fullTranslation}}
+            </div>
+
         </div>
 
 
+    </div>
 
 
-    {{/if}}
 
-    {{> error "submitTranslation"}}
 
 
 </template>

@@ -1,20 +1,16 @@
-<template name="selectProject">
+<template name="selectProjectToTranslate">
     <h1>Translate a project</h1>
 
-    <p>Which project file would you like to translate?</p>
+    <p>Which project would you like to translate?</p>
     <p class="help-block">Paste a link to a github.org project, or directly to the language file to translate</p>
 
     <div>
         <input type="input" class="projectUrl" placeholder="example: https://github.com/hkniberg/translateme" size="100">
     </div>
 
-    {{#if checking}}
-        {{> spinner}}
-    {{else}}
-        <div>
-            <button class="btn btn-default selectButton">Select</button>
-        </div>
-    {{/if}}
+    <div>
+        <button class="btn btn-primary selectButton">Select</button>
+    </div>
 
 
 </template>

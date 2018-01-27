@@ -1,8 +1,8 @@
 Template.start.events({
   "click .translate"() {
-    Router.go('/selectProject')
+    Router.go('/selectProjectToTranslate')
   },
   "click .getTranslateMeButton"() {
-    console.log("get button")
+    Router.go('/createButton')
   }
 })

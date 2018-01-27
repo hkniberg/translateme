@@ -1,0 +1,39 @@
+<template name="createButton">
+    <h1>Create button</h1>
+
+    <p>Wouldn't it be great if people could easily translate your github project?</p>
+
+    <p class="help-block">Paste a link to your github.org project, or directly to the language file to translate</p>
+
+    <div>
+        <input type="input" class="projectUrl" placeholder="example: https://github.com/hkniberg/translateme" size="100">
+    </div>
+
+    {{#if checking}}
+        {{> spinner}}
+    {{else}}
+        <div>
+            <button class="btn btn-primary createButtonButton">Create a button</button>
+        </div>
+    {{/if}}
+
+    {{#if translationUrl}}
+        <h3>Ok, here is your button</h3>
+        <div class="translateButton"><a href="{{translationUrl}}" target="translateButton">Translate Me</a></div>
+
+        <h3>And here is the html code to embed this button on your site:</h3>
+        <div class="translateButtonSource">
+            <textarea cols="100" rows="4">{{buttonSource}}</textarea>
+        </div>
+
+        <h3>Or you can send this link to people:</h3>
+        <input type="text" size="100" value="{{translationUrl}}">
+
+
+
+
+    {{/if}}
+
+
+
+</template>

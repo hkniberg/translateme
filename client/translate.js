@@ -116,7 +116,7 @@ Template.translate.events({
 
   "click .downloadButton"(event) {
     const allTranslatedText = getAllTranslatedText()
-    const allTranslatedTextAsOneString = JSON.stringify(allTranslatedText)
+    const allTranslatedTextAsOneString = JSON.stringify(allTranslatedText, null, 2)
     const fileName = this.toLanguageCode + ".i18n.json"
     const href = 'data:application/json;charset=utf-8,'+ encodeURIComponent(allTranslatedTextAsOneString);
     const linkElement = document.createElement('a');
