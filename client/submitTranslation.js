@@ -1,8 +1,8 @@
-import {getFullTranslation} from "./translationStatus";
 import {clearError} from "./helpers";
 import {setError} from "./helpers";
 import {getGitHubAccessToken} from "./authentication";
 import {getLanguageName} from "../lib/data/languages";
+import {getLanguageData} from "./translationStatus";
 
 const submittingVar = new ReactiveVar(false)
 const resultVar = new ReactiveVar(false)
@@ -16,8 +16,8 @@ Template.submitTranslation.onRendered(function() {
   console.assert(data.fromLanguageCode, "Missing owner")
   console.assert(data.toLanguageCode, "Missing owner")
 
-  const fullTranslation = getFullTranslation()
-  if (!fullTranslation) {
+  console.log("submitTranslation - languageData = ", getLanguageData(data.toLanguageCode))
+  if (!getLanguageData(data.toLanguageCode)) {
     setError("submitTranslation", "Looks like your session has expired!")
   }
 })
@@ -56,8 +56,8 @@ Template.submitTranslation.helpers({
     }
   },
 
-  fullTranslation() {
-    return JSON.stringify(getFullTranslation(), null, 2)
+  translationDoc() {
+    return JSON.stringify(getLanguageData(this.toLanguageCode).texts, null, 2)
   },
 
   toLanguageName() {
@@ -74,13 +74,13 @@ Template.submitTranslation.events({
 function submit() {
   clearError("submitTranslation")
   const data = Template.currentData()
-  const fullTranslation = getFullTranslation()
+  const languageData = getLanguageData(data.toLanguageCode)
   const comment = $(".commentInput").val()
   submittingVar.set(true)
   resultVar.set(null)
 
   console.log("calling submitTranslation...")
-  Meteor.call("submitTranslation", data.owner, data.repo, data.fromLanguageCode, data.toLanguageCode, fullTranslation, comment,  getGitHubAccessToken(), function(err, result) {
+  Meteor.call("submitTranslation", data.owner, data.repo, data.fromLanguageCode, data.toLanguageCode, languageData.texts, comment,  getGitHubAccessToken(), function(err, result) {
     console.log("Done!", err, result)
     submittingVar.set(false)
     if (err) {

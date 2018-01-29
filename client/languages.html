@@ -15,22 +15,56 @@
         {{/if}}
 
 
-        {{#if projectLanguages}}
-            <h1>What would you like to translate?</h1>
+        <h1>Translate</h1>
 
-            Translate from
-            <select class="fromLanguageCode">
-                {{#each projectLanguages}}
-                    <option value="{{languageCode}}">{{languageName}}</option>
-                {{/each}}
-            </select>
-            to
-            <select class="toLanguageCode">
-                {{#each allLanguages}}
-                    <option value="{{languageCode}}">{{languageName}}</option>
-                {{/each}}
-            </select>
-            <div><button class="btn btn-primary submitButton">Ok let's do it!</button></div>
+        {{#if projectLanguages}}
+            <p>This project is currently available in {{projectLanguagesAsSentence}}.</p>
+
+            {{#if loadingTexts}}
+                <p>Loading stuff from github...</p>
+                {{> spinner}}
+            {{else}}
+                <p>What would you like to do?</p>
+
+                <h2>Create a new translation</h2>
+
+                Translate from
+                <select class="createFromLanguageCode">
+                    {{#each projectLanguages}}
+                        <option value="{{languageCode}}">{{languageName}}</option>
+                    {{/each}}
+                </select>
+                to
+                <select class="createToLanguageCode">
+                    {{#each allLanguagesExceptProjectLanguages}}
+                        <option value="{{languageCode}}">{{languageName}}</option>
+                    {{/each}}
+                </select>
+                <div><button class="btn btn-primary createButton">Create a new translation</button></div>
+
+                {{#if hasMoreThanOneLanguage}}
+
+                    <h2>Update an existing translation</h2>
+
+                    Update the translation from
+                    <select class="updateFromLanguageCode">
+                        {{#each projectLanguages}}
+                            <option value="{{languageCode}}">{{languageName}}</option>
+                        {{/each}}
+                    </select>
+                    to
+                    <select class="updateToLanguageCode">
+                        {{#each projectLanguagesExceptBase}}
+                            <option value="{{languageCode}}">{{languageName}}</option>
+                        {{/each}}
+                    </select>
+                    <div><button class="btn btn-primary updateButton">Update the translation</button></div>
+                {{/if}}
+
+
+            {{/if}}
+
+
         {{/if}}
     {{/if}}
 

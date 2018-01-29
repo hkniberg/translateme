@@ -14,12 +14,16 @@ Template.registerHelper('path', function() {
 })
 
 Template.registerHelper('loading', function() {
-  return Session.get("loading")
+  return isLoading()
 })
 
 Template.registerHelper('error', function(context) {
   return getError(context)
 })
+
+export function isLoading() {
+  return !!Session.get('loading')
+}
 
 export function setLoading(loading) {
   Session.set('loading', loading)

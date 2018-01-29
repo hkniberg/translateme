@@ -1,16 +1,16 @@
-import {setLoading} from "./helpers"
 import {clearError} from "./helpers"
 import {setError} from "./helpers";
 import {getLanguageName} from "../lib/data/languages";
 import {getCachedGoogleTranslation} from "./googleTranslationCache";
 import {cacheGoogleTranslation} from "./googleTranslationCache";
-import {setTranslatedText} from "./translationStatus";
-import {getTranslatedText} from "./translationStatus";
 import {getGitHubAccessToken} from "./authentication";
-import {setFullTranslation} from "./translationStatus";
+import {setLanguageText} from "./translationStatus";
+import {setLanguageData} from "./translationStatus";
+import {getLanguageText} from "./translationStatus";
+import {getLanguageData} from "./translationStatus";
 
-const languageTextsVar = new ReactiveVar()
 
+const loadingVar = new ReactiveVar(true)
 /*
 Expected data context:
   - owner
@@ -20,50 +20,18 @@ Expected data context:
   - toLanguageCode
  */
 Template.translate.onRendered(function() {
+  console.log("onRendered")
   const data = Template.currentData()
   console.assert(data.owner, "owner missing")
   console.assert(data.repo, "repo missing")
   console.assert(data.fromLanguageCode, "fromLanguageCode missing")
   console.assert(data.toLanguageCode, "toLanguageCode missing")
-
-  setLoading(true)
-  clearError("translate", true)
-
-
-  Meteor.call("getLanguageTexts", data.owner, data.repo, data.fromLanguageCode, getGitHubAccessToken(), function(err, languageTexts) {
-    setLoading(false)
-    if (err) {
-      setError("translate", "getLanguageTexts failed", err)
-      return
-    }
-    languageTextsVar.set(languageTexts)
-
-    languageTexts.forEach((languageText) => {
-      Meteor.call('googleTranslate', languageText.text, data.fromLanguageCode, data.toLanguageCode, function(err, translatedText) {
-        if (err) {
-          translatedText = ""
-        }
-        cacheGoogleTranslation(languageText.key, data.fromLanguageCode, data.toLanguageCode, translatedText)
-      })
-    })
-  })
 })
 
 Template.translate.helpers({
 
-  translation() {
-    return getTranslatedText(this.key)
-  },
-  
-  /*
-   Return something like:
-   [
-    {key: "Title", text: "My cool website"}
-    ...
-   ]
-   */
-  languageTexts() {
-    return languageTextsVar.get()
+  textKeys() {
+    return getTextKeys(this.fromLanguageCode)
   },
 
   fromLanguageName() {
@@ -78,17 +46,38 @@ Template.translate.helpers({
     //TODO
   },
 
-  rows() {
-    return this.text.length / 20
+  rowsToUseForTranslatedText() {
+    const key = this
+    const fromLanguageCode = Template.parentData().fromLanguageCode
+    const fromLanguageText = getLanguageText(fromLanguageCode, key)
+    if (fromLanguageText) {
+      return fromLanguageText.length / 20
+    } else {
+      return 1
+    }
   },
 
   borderClass() {
     //TODO
   },
-  
-  googleTranslation() {
-    const parentData = Template.parentData()
-    return getCachedGoogleTranslation(this.key, parentData.fromLanguageCode, parentData.toLanguageCode)
+
+  fromLanguageText() {
+    const key = this
+    const fromLanguageCode = Template.parentData().fromLanguageCode
+    return getLanguageText(fromLanguageCode, key)
+  },
+
+  toLanguageText() {
+    const key = this
+    const toLanguageCode = Template.parentData().toLanguageCode
+    return getLanguageText(toLanguageCode, key)
+  },
+
+  googleTranslationText() {
+    const key = this
+    const fromLanguageCode = Template.parentData().fromLanguageCode
+    const toLanguageCode = Template.parentData().toLanguageCode
+    return getCachedGoogleTranslation(key, fromLanguageCode, toLanguageCode)
   }
 
 })
@@ -96,21 +85,24 @@ Template.translate.helpers({
 Template.translate.events({
   "blur .translationTextArea"(event) {
     const data = Template.currentData()
+    const toLanguageCode = data.toLanguageCode
     const textArea = event.target
     const key = $(textArea).data("key")
     const translatedText = $(textArea).val()
     
-    setTranslatedText(key, translatedText)
+    setLanguageText(toLanguageCode, key, translatedText)
   },
 
   "click .copyButton"(event) {
     const button = event.target
     const key = $(button).data("key")
-    const parentData = Template.parentData()
+    const fromLanguageCode = Template.currentData().fromLanguageCode
+    const toLanguageCode = Template.currentData().toLanguageCode
 
-    const googleTranslation = getCachedGoogleTranslation(key, parentData.fromLanguageCode, parentData.toLanguageCode)
+
+    const googleTranslation = getCachedGoogleTranslation(key, fromLanguageCode, toLanguageCode)
     if (googleTranslation) {
-      setTranslatedText(key, googleTranslation)
+      setLanguageText(toLanguageCode, key, googleTranslation)
     }
   },
 
@@ -126,7 +118,6 @@ Template.translate.events({
   },
 
   "click .submitButton"(event) {
-    setFullTranslation(getAllTranslatedText())
     Router.go("submitTranslation", {
       owner: this.owner,
       repo: this.repo,
@@ -136,21 +127,9 @@ Template.translate.events({
   }
 })
 
-/**
- * Returns the full translation as an object, like this:
- * {
- *   title: "My cool site",
- *   greeting: "Hello there"
- * }
- */
-function getAllTranslatedText() {
-  const allTranslatedText = {}
-  languageTextsVar.get().forEach((languageText) => {
-    const key = languageText.key
-    const translatedText = getTranslatedText(key)
-    if (translatedText) {
-      allTranslatedText[key] = translatedText
-    }
-  })
-  return allTranslatedText
+
+function getTextKeys(languageCode) {
+  const languageData = getLanguageData(languageCode)
+  return Object.getOwnPropertyNames(languageData.texts)
 }
+

@@ -1,21 +1,37 @@
 import {Session} from "meteor/session"
 
-export function setTranslatedText(key, translatedText) {
+export function setLanguageData(languageCode, languageData) {
+  console.log("setLanguageData", languageCode, languageData)
+  console.assert(languageCode, "languageCode is required")
+  console.assert(languageData, "languageData is required")
+
+  Session.set("languageData-" + languageCode, languageData)
+}
+
+export function getLanguageData(languageCode) {
+  console.assert(languageCode, "languageCode is required")
+
+  return Session.get("languageData-" + languageCode)
+}
+
+export function setLanguageText(languageCode, key, text) {
+  console.log("setLanguageText", languageCode, key, text)
+  console.assert(languageCode, "languageCode is required")
   console.assert(key, "key is required")
-  Session.set("translatedText-" + key, translatedText)
+
+  const languageData = getLanguageData(languageCode)
+  console.assert(languageData, "Hey, there is no languageData for " + languageCode)
+  languageData.texts[key] = text
+  setLanguageData(languageCode, languageData)
 }
 
-export function getTranslatedText(key) {
+export function getLanguageText(languageCode, key) {
+  console.assert(languageCode, "languageCode is required")
   console.assert(key, "key is required")
-  return Session.get("translatedText-" + key)
-}
 
+  const languageData = getLanguageData(languageCode)
+  console.assert(languageData, "Hey, there is no languageData for " + languageCode)
 
-export function setFullTranslation(fullTranslation) {
-  console.assert(fullTranslation, "fullTranslation is required")
-  Session.set("fullTranslation", fullTranslation)
-}
-
-export function getFullTranslation() {
-  return Session.get("fullTranslation")
+  console.log("getLanguageText", languageCode, key, "Result: ", languageData.texts[key])
+  return languageData.texts[key]
 }

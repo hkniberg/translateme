@@ -14,3 +14,4 @@ export function parseGitUrl(gitUrl) {
   return {owner, repo}
 
 }
+
