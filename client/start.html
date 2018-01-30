@@ -1,9 +1,38 @@
 <template name="start">
-    <h1>{{_ "translateMe"}}</h1>
-    <p>{{_ "whatDoYouWantToDo"}}</p>
+    <h1>Translate Me - crowd translation simplified</h1>
+
+    <div><img src="/image/introdrawing.png" width="500px"></div>
 
     <div>
-        <button class="btn btn-primary translate">{{_ "translateAProject"}}</button>
-        <button class="btn btn-primary getTranslateMeButton">{{_ "getATranslateButton"}}</button>
+        <button class="btn btn-primary btn-lg btn-space translate">{{_ "translateAProject"}}</button>
     </div>
+    <div>
+        <button class="btn btn-primary btn-lg btn-space getTranslateMeButton">{{_ "getATranslateButton"}}</button>
+    </div>
+
+    <a class="btn btn-link" role="button" data-toggle="collapse" href="#details" aria-expanded="false" aria-controls="details">
+        Wait. What is this service all about?
+    </a>
+    <div class="collapse" id="details">
+        <div class="well">
+            <h3>Glad you asked!</h3>
+            <p>
+                Lots of people are willing to translate online projects and service for free,
+                as long as it's simple to do. For example <a href="AgileManifesto.org">AgileManifesto.org</a> was translated to over 60 languages by volunteers.
+            </p>
+            <p>
+                This tool is designed to make crowd translation as simple and hassle-free as possible.
+                All you do is:
+            </p>
+            <ol>
+                <li>Pick a githubproject to translate</li>
+                <li>Pick a language to translate it to</li>
+                <li>Do the translation directly online, assisted by google translate as a starting point</li>
+                <li>With a single click, submit the translation to the project owner as a github pull request</li>
+            </ol>
+        </div>
+    </div>
+
+
+
 </template>

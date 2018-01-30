@@ -1,5 +1,4 @@
 <template name="languages">
-    {{> projectInfo}}
     {{> error "languages"}}
 
     {{#if loading}}
@@ -15,7 +14,7 @@
         {{/if}}
 
 
-        <h1>Translate</h1>
+        <h1>Translate {{projectName}}</h1>
 
         {{#if projectLanguages}}
             <p>This project is currently available in {{projectLanguagesAsSentence}}.</p>
@@ -24,10 +23,6 @@
                 <p>Loading stuff from github...</p>
                 {{> spinner}}
             {{else}}
-                <p>What would you like to do?</p>
-
-                <h2>Create a new translation</h2>
-
                 Translate from
                 <select class="createFromLanguageCode">
                     {{#each projectLanguages}}
@@ -40,8 +35,9 @@
                         <option value="{{languageCode}}">{{languageName}}</option>
                     {{/each}}
                 </select>
-                <div><button class="btn btn-primary createButton">Create a new translation</button></div>
+                <div><button class="btn btn-primary btn-space createButton">Create a new translation</button></div>
 
+            <!--
                 {{#if hasMoreThanOneLanguage}}
 
                     <h2>Update an existing translation</h2>
@@ -60,7 +56,7 @@
                     </select>
                     <div><button class="btn btn-primary updateButton">Update the translation</button></div>
                 {{/if}}
-
+            -->
 
             {{/if}}
 

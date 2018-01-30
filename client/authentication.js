@@ -7,3 +7,7 @@ export function setGitHubAccessToken(token) {
 export function getGitHubAccessToken() {
   return Session.get("gitHubAccessToken")
 }
+
+export function isSignedInToGitHub() {
+  return !!getGitHubAccessToken()
+}

@@ -1,11 +1,24 @@
 import {Session} from "meteor/session"
 
+
+
 export function setLanguageData(languageCode, languageData) {
-  console.log("setLanguageData", languageCode, languageData)
   console.assert(languageCode, "languageCode is required")
   console.assert(languageData, "languageData is required")
 
   Session.set("languageData-" + languageCode, languageData)
+}
+
+export function saveLanguageDataToLocalStorage(languageCode) {
+  console.log("saveLanguageDataToLocalStorage", languageCode)
+  window.localStorage.setItem("languageData-" + languageCode, JSON.stringify(getLanguageData(languageCode)))
+}
+
+export function loadLanguageDataFromLocalStorage(languageCode) {
+  console.log("loadLanguageDataFromLocalStorage", languageCode)
+  const savedLanguageData = window.localStorage.getItem("languageData-" + languageCode)
+  console.log("savedLanguageData", savedLanguageData)
+  setLanguageData(languageCode, JSON.parse(savedLanguageData))
 }
 
 export function getLanguageData(languageCode) {
@@ -15,13 +28,18 @@ export function getLanguageData(languageCode) {
 }
 
 export function setLanguageText(languageCode, key, text) {
-  console.log("setLanguageText", languageCode, key, text)
   console.assert(languageCode, "languageCode is required")
   console.assert(key, "key is required")
 
   const languageData = getLanguageData(languageCode)
+
+
   console.assert(languageData, "Hey, there is no languageData for " + languageCode)
-  languageData.texts[key] = text
+  if (text == null || text == undefined || text.trim() == "") {
+    delete languageData.texts[key]
+  } else {
+    languageData.texts[key] = text
+  }
   setLanguageData(languageCode, languageData)
 }
 
@@ -32,6 +50,5 @@ export function getLanguageText(languageCode, key) {
   const languageData = getLanguageData(languageCode)
   console.assert(languageData, "Hey, there is no languageData for " + languageCode)
 
-  console.log("getLanguageText", languageCode, key, "Result: ", languageData.texts[key])
   return languageData.texts[key]
 }

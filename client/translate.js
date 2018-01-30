@@ -1,13 +1,9 @@
-import {clearError} from "./helpers"
-import {setError} from "./helpers";
 import {getLanguageName} from "../lib/data/languages";
 import {getCachedGoogleTranslation} from "./googleTranslationCache";
-import {cacheGoogleTranslation} from "./googleTranslationCache";
-import {getGitHubAccessToken} from "./authentication";
 import {setLanguageText} from "./translationStatus";
-import {setLanguageData} from "./translationStatus";
 import {getLanguageText} from "./translationStatus";
 import {getLanguageData} from "./translationStatus";
+import {downloadTranslation} from "./helpers";
 
 
 const loadingVar = new ReactiveVar(true)
@@ -20,7 +16,7 @@ Expected data context:
   - toLanguageCode
  */
 Template.translate.onRendered(function() {
-  console.log("onRendered")
+  console.log("translate onRendered", Template.currentData())
   const data = Template.currentData()
   console.assert(data.owner, "owner missing")
   console.assert(data.repo, "repo missing")
@@ -51,9 +47,9 @@ Template.translate.helpers({
     const fromLanguageCode = Template.parentData().fromLanguageCode
     const fromLanguageText = getLanguageText(fromLanguageCode, key)
     if (fromLanguageText) {
-      return fromLanguageText.length / 20
+      return Math.max(fromLanguageText.length / 20, 2)
     } else {
-      return 1
+      return 2
     }
   },
 
@@ -107,14 +103,7 @@ Template.translate.events({
   },
 
   "click .downloadButton"(event) {
-    const allTranslatedText = getAllTranslatedText()
-    const allTranslatedTextAsOneString = JSON.stringify(allTranslatedText, null, 2)
-    const fileName = this.toLanguageCode + ".i18n.json"
-    const href = 'data:application/json;charset=utf-8,'+ encodeURIComponent(allTranslatedTextAsOneString);
-    const linkElement = document.createElement('a');
-    linkElement.setAttribute('href', href);
-    linkElement.setAttribute('download', fileName);
-    linkElement.click();
+    downloadTranslation(this.fromLanguageCode, this.toLanguageCode)
   },
 
   "click .submitButton"(event) {

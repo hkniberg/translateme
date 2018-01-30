@@ -1,6 +1,4 @@
 <template name="submitTranslation">
-    {{> projectInfo}}
-
     <h1>Submit your translation</h1>
 
     <div class="row">
@@ -11,9 +9,47 @@
                 {{> spinner}}
             {{else}}
                 {{#unless result}}
-                    <div><b>Comment:</b></div>
-                    <textarea class="commentInput">Hi! Here's a translation to {{toLanguageName}}.</textarea>
-                    <div><button class="btn btn-primary submitButton">Submit your translation via github</button></div>
+                    {{#if signedInToGitHub}}
+                        <p>OK, I am about to send this translation to the project owner.
+                            Feel free to write a comment to them below.</p>
+
+
+                        <div><b>Comment:</b></div>
+                        <textarea class="commentInput">Hi! Here's a translation to {{toLanguageName}}.</textarea>
+                        <div><button class="btn btn-primary submitButton">Submit your translation via github</button></div>
+                    {{else}}
+                        <p>
+                            We could automatically send this translation directly to the devs as a github pull request.
+                            But you will need to sign in to github, or create an account there (it's easy).
+                        </p>
+                        <p>
+                            Or you can download the file and send it yourself (see link to the right).
+                        </p>
+                        <span><button class="btn btn-primary signIn">Sign in to github</button></span>
+
+
+                    {{/if}}
+
+
+
+
+
+                    <p><a class="btn btn-link" role="button" data-toggle="collapse" href="#whatWillHappen" aria-expanded="false" aria-controls="whatWillHappen">
+                        What will actually happen?
+                    </a>
+                    </p>
+                    <div class="collapse" id="whatWillHappen">
+                        <div class="well">
+                            So you want the techy details? OK. I will:
+                            <ol>
+                                <li>Fork the project to your github account.</li>
+                                <li>Commit this language file to your repo.</li>
+                                <li>Create a pull request on the original repo.</li>
+                                <li>Hopefully the devs will get some kind of notification. Otherwise ping them.</li>
+                            </ol>
+                        </div>
+                    </div>
+
                 {{/unless}}
             {{/if}}
 
@@ -45,10 +81,6 @@
                     </div>
                 </div>
 
-
-
-
-
             {{/if}}
 
             {{> error "submitTranslation"}}
@@ -56,6 +88,8 @@
         </div>
 
         <div class="col col-xs-6">
+            <p>Here is the language file we'll send</p>
+            <div><button class="btn btn-link downloadButton">Download it</button></div>
             <div class="translationPreview">
                 {{translationDoc}}
             </div>

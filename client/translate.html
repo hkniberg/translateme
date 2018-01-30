@@ -6,12 +6,16 @@
     <p>OK go ahead and translate each section of text below.</p>
     <p>You can use the google translation column for reference.</p>
 
+
+
     <div class="row">
         <div class="col col-xs-4">
             <b>{{fromLanguageName}} text</b>
         </div>
         <div class="col col-xs-4">
             <b>{{toLanguageName}} translation</b>
+            <div><button class="btn btn-link downloadButton">Download translation as file</button></div>
+            <div>{{> translationProgress this}}</div>
         </div>
         <div class="col col-xs-4">
             <b>Google translation</b> (if available)
@@ -47,8 +51,8 @@
             </div>
         </div>
     {{/each}}
+    <div><button class="btn btn-link downloadButton">Download translation as file</button></div>
 
-    <div><button class="btn btn-success btn-lg submitButton">Submit to github</button></div>
-    <div><button class="btn btn-success btn-lg downloadButton">Download file</button></div>
+    <div><button class="btn btn-success btn-lg submitButton">Submit translation</button></div>
 
 </template>

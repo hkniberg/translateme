@@ -1,6 +1,7 @@
 import {Session} from "meteor/session"
 import {getLanguageName} from "../lib/data/languages";
-
+import {getLanguageData} from "./translationStatus";
+import {getPluginByName} from "../lib/plugins"
 Template.registerHelper('owner', function() {
   return Session.get("owner")
 })
@@ -48,4 +49,24 @@ export function setError(context, description, err) {
 
 export function clearError(context) {
   Session.set("error " + context, null)
+}
+
+export function downloadTranslation(fromLanguageCode, toLanguageCode) {
+  console.log("getLanguageData", fromLanguageCode, toLanguageCode)
+
+
+
+  const toLanguageData = getLanguageData(toLanguageCode)
+  const texts = toLanguageData.texts
+
+  const plugin = getPluginByName(toLanguageData.fileFormat)
+  const updatedTexts = plugin.renameKeys(fromLanguageCode, toLanguageCode, texts)
+
+  const fileContent = plugin.convertLanguageTextsToFileContents(updatedTexts)
+  const fileName = plugin.getFileNameForLanguage(toLanguageCode)
+  const href = 'data:application/json;charset=utf-8,'+ encodeURIComponent(fileContent);
+  const linkElement = document.createElement('a');
+  linkElement.setAttribute('href', href);
+  linkElement.setAttribute('download', fileName);
+  linkElement.click();
 }

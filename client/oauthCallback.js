@@ -8,11 +8,8 @@ Template.oauthCallback.onRendered(function() {
   const query = Router.current().params.query
   const code = query.code
 
-
-  //const state = JSON.parse(query.state)
-  //console.log("state", state)
-  //const owner = state.owner
-  //const repo = state.repo
+  console.log("x", Session.get("x"))
+  const path = query.state
 
   Meteor.call("requestGitHubAccessToken", code, function(err, token) {
     if (err) {
@@ -20,7 +17,7 @@ Template.oauthCallback.onRendered(function() {
       return
     }
     setGitHubAccessToken(token)
-    Router.go("/")
+    Router.go(path)
   })
 })
 
