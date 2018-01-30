@@ -9,4 +9,13 @@ describe('util', function() {
     expect(util.getRelativeString('/dir/stuff.txt', 'this.txt')).to.equal('/dir/this.txt')
   })
 
+  it('parseGitUrl', function() {
+    const url = "https://github.com/hkniberg/dingoblat/blob/master/i18n/en.i18n.json"
+    expect(util.parseGitUrl(url)).to.deep.equal({
+      owner: "hkniberg",
+      repo: "dingoblat",
+      path: "i18n/en.i18n.json"
+    })
+  })
+
 })

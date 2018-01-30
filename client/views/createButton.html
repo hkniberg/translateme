@@ -3,22 +3,32 @@
 
     <p>Wouldn't it be great if people could easily translate your github project?</p>
 
-    <p class="help-block">Paste a link to your github.org project, or directly to the language file to translate</p>
+    <ol>
+        <li>Find your project on github</li>
+        <li>Navigate to your base language file, the one that contains the default locale that you use during development.</li>
+        <li>Copy the github URL to that file and paste below<br>
+            For example: https://github.com/hkniberg/dingoblat/blob/master/i18n/en.i18n.json
+        </li>
+    </ol>
 
+    <p class="help-block"></p>
+
+    <b>GitHub URL to your base language file</b>
     <div>
-        <input type="input" class="projectUrl" placeholder="example: https://github.com/hkniberg/translateme" size="100">
+        <input type="input" class="projectUrl" placeholder="https://github.com/...." size="100">
     </div>
 
     {{#if checking}}
         {{> spinner}}
     {{else}}
         <div>
-            <button class="btn btn-primary createButtonButton">Create a button</button>
+            <button class="btn btn-primary btn-space createButtonButton">Create a button</button>
         </div>
     {{/if}}
 
     {{#if translationUrl}}
         <h3>Ok, here is your button</h3>
+        <p>Base language: {{languageInfo.languageName}}</p>
         <div class="translateButton"><a href="{{translationUrl}}" target="translateButton">Translate Me</a></div>
 
         <h3>And here is the html code to embed this button on your site:</h3>

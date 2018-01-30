@@ -3,10 +3,13 @@ const expect = require('chai').expect
 const fs = require('fs')
 const path = require('path')
 
-export function testFileName(pluginName, languageCode, fileName) {
+export function testFileName(pluginName, languageCode, path) {
+
   const plugin = getPlugin(pluginName)
+  const fileName = util.removeParentsFromPath(path)
   expect(plugin.getFileNameForLanguage(languageCode)).to.equal(fileName)
   expect(plugin.getLanguageOfFile(fileName)).to.equal(languageCode)
+  expect(plugin.getLanguageOfFile(path)).to.equal(languageCode)
 }
 
 export function testFileParsing(pluginName) {
