@@ -23,12 +23,17 @@
                     <p>Loading stuff from github...</p>
                     {{> spinner}}
                 {{else}}
+
                     Translate from
-                    <select class="createFromLanguageCode">
-                        {{#each projectLanguages}}
-                            <option value="{{languageCode}}">{{languageName}}</option>
-                        {{/each}}
-                    </select>
+                    {{#if baseLanguageName}}
+                        {{baseLanguageName}}
+                    {{else}}
+                        <select class="createFromLanguageCode">
+                            {{#each projectLanguages}}
+                                <option value="{{languageCode}}">{{languageName}}</option>
+                            {{/each}}
+                        </select>
+                    {{/if}}
                     to
                     <select class="createToLanguageCode">
                         {{#each allLanguagesExceptProjectLanguages}}

@@ -10,6 +10,7 @@ import {loadLanguageDataFromLocalStorage} from "../translationStatus";
 import {triggerGoogleTranslation} from "../helpers";
 
 const languageInfosVar = new ReactiveVar()
+
 const selectedLanguageCodeVar = new ReactiveVar()
 const repoNotFoundVar = new ReactiveVar()
 const parseErrorVar = new ReactiveVar()
@@ -24,15 +25,15 @@ Template.languages.onRendered(function() {
   clearError("languages")
 
   const data = Template.currentData()
-
-  Meteor.call("getLanguageInfos", data.owner, data.repo, getGitHubAccessToken(), function(err, languageInfos) {
+  
+  Meteor.call("getLanguageInfos", data.owner, data.repo, data.baseLanguagePath, getGitHubAccessToken(), function(err, languageInfos) {
     setLoading(false)
     if (err) {
       console.log("Got error", err)
       if (err.error == "notFound") {
         repoNotFoundVar.set(true)
       } else {
-        setError("languages", "getTranslationOverview failed", err)
+        setError("languages", "getLanguageInfos failed", err)
       }
       return
     }
@@ -42,8 +43,8 @@ Template.languages.onRendered(function() {
     })
 
     languageInfosVar.set(languageInfos)
-    
-  })
+
+  })    
 })
 
 Template.languages.helpers({
@@ -53,6 +54,13 @@ Template.languages.helpers({
 
   projectName() {
     return this.repo
+  },
+
+  baseLanguageName() {
+    const baseLanguageInfo = getBaseLanguageInfo()
+    if (baseLanguageInfo) {
+      return baseLanguageInfo.languageName
+    }
   },
 
   projectLanguages() {
@@ -145,9 +153,17 @@ function getLanguageInfo(languageCode) {
 }
 
 function createNewTranslation() {
-  const fromLanguageCode = $(".createFromLanguageCode").val()
-  const toLanguageCode = $(".createToLanguageCode").val()
   const data = Template.currentData()
+
+  const baseLanguageInfo = getBaseLanguageInfo()
+  let fromLanguageCode
+  if (baseLanguageInfo) {
+    fromLanguageCode = baseLanguageInfo.languageCode
+  } else {
+    fromLanguageCode = $(".createFromLanguageCode").val()
+  }
+
+  const toLanguageCode = $(".createToLanguageCode").val()
 
   loadingTextsVar.set(true)
   parseErrorVar.set(null)
@@ -191,3 +207,13 @@ function createNewTranslation() {
 
 }
 
+function getBaseLanguageInfo() {
+  const data = Template.currentData()
+  if (!data.baseLanguagePath) {
+    return null
+  }
+
+  return languageInfosVar.get().find((languageInfo) => {
+    return languageInfo.path == data.baseLanguagePath
+  })
+}
