@@ -78,9 +78,10 @@ Template.translate.helpers({
 
   googleTranslationText() {
     const key = this
-    const fromLanguageCode = Template.parentData().fromLanguageCode
-    const toLanguageCode = Template.parentData().toLanguageCode
-    return getCachedGoogleTranslation(key, fromLanguageCode, toLanguageCode)
+    const data = Template.parentData()
+    const fromLanguageCode = data.fromLanguageCode
+    const toLanguageCode = data.toLanguageCode
+    return getCachedGoogleTranslation(data.owner, data.repo, key, fromLanguageCode, toLanguageCode)
   }
 
 })
@@ -104,7 +105,7 @@ Template.translate.events({
     const toLanguageCode = data.toLanguageCode
 
 
-    const googleTranslation = getCachedGoogleTranslation(key, fromLanguageCode, toLanguageCode)
+    const googleTranslation = getCachedGoogleTranslation(data.owner, data.repo, key, fromLanguageCode, toLanguageCode)
     if (googleTranslation) {
       setLanguageText(data.owner, data.repo, toLanguageCode, key, googleTranslation)
     }

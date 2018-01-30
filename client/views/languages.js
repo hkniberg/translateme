@@ -6,9 +6,8 @@ import {getAllLanguages} from "../../lib/data/languages";
 import {getGitHubAccessToken} from "./../authentication";
 import {signInToGitHub} from "./../gitHubClientUtil";
 import {setLanguageData} from "./../translationStatus";
-import {getCachedGoogleTranslation} from "./../googleTranslationCache";
-import {cacheGoogleTranslation} from "./../googleTranslationCache";
 import {loadLanguageDataFromLocalStorage} from "../translationStatus";
+import {triggerGoogleTranslation} from "../helpers";
 
 const languageInfosVar = new ReactiveVar()
 const selectedLanguageCodeVar = new ReactiveVar()
@@ -37,6 +36,10 @@ Template.languages.onRendered(function() {
       }
       return
     }
+
+    languageInfos = languageInfos.sort((a, b) => {
+      return a.languageName > b.languageName
+    })
 
     languageInfosVar.set(languageInfos)
     
@@ -173,7 +176,7 @@ function createNewTranslation() {
       loadLanguageDataFromLocalStorage(data.owner, data.repo, toLanguageCode)
     }
 
-    triggerGoogleTranslation(languageDatas.fromLanguage, toLanguageCode)
+    triggerGoogleTranslation(data.owner, data.repo, languageDatas.fromLanguage, toLanguageCode)
 
     Router.go('translate', {
       owner: data.owner,
@@ -188,20 +191,3 @@ function createNewTranslation() {
 
 }
 
-function triggerGoogleTranslation(fromLanguageData, toLanguageCode) {
-  const fromLanguageCode = fromLanguageData.languageCode
-  const keys = Object.getOwnPropertyNames(fromLanguageData.texts)
-  keys.forEach((key) => {
-    const fromLanguageText = fromLanguageData.texts[key]
-    if (!getCachedGoogleTranslation(key, fromLanguageCode, toLanguageCode)) {
-      Meteor.call('googleTranslate', fromLanguageText, fromLanguageCode, toLanguageCode, function(err, translatedText) {
-        if (err) {
-          translatedText = ""
-        }
-        cacheGoogleTranslation(key, fromLanguageCode, toLanguageCode, translatedText)
-      })
-    }
-  })
-
-
-}

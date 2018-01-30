@@ -2,6 +2,8 @@ import {Session} from "meteor/session"
 import {getLanguageName} from "../lib/data/languages";
 import {getLanguageData} from "./translationStatus";
 import {getPluginByName} from "../lib/initPlugins"
+import {cacheGoogleTranslation} from "./googleTranslationCache";
+import {getCachedGoogleTranslation} from "./googleTranslationCache";
 Template.registerHelper('owner', function() {
   return Session.get("owner")
 })
@@ -74,4 +76,25 @@ export function downloadLanguageFile(owner, repo, languageCode) {
   linkElement.setAttribute('href', href);
   linkElement.setAttribute('download', fileData.fileName);
   linkElement.click();
+}
+
+export function triggerGoogleTranslation(owner, repo, fromLanguageData, toLanguageCode) {
+  console.assert(owner, "missing owner")
+  console.assert(repo, "missing repo")
+  console.assert(fromLanguageData, "missing fromLanguageData")
+  console.assert(toLanguageCode, "missing toLanguageCode")
+  
+  const fromLanguageCode = fromLanguageData.languageCode
+  const keys = Object.getOwnPropertyNames(fromLanguageData.texts)
+  keys.forEach((key) => {
+    const fromLanguageText = fromLanguageData.texts[key]
+    if (!getCachedGoogleTranslation(owner, repo, key, fromLanguageCode, toLanguageCode)) {
+      Meteor.call('googleTranslate', fromLanguageText, fromLanguageCode, toLanguageCode, function(err, translatedText) {
+        if (err) {
+          translatedText = ""
+        }
+        cacheGoogleTranslation(owner, repo, key, fromLanguageCode, toLanguageCode, translatedText)
+      })
+    }
+  })
 }
