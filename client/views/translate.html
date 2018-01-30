@@ -10,15 +10,17 @@
 
     <div class="row">
         <div class="col col-xs-4">
-            <b>{{fromLanguageName}} text</b>
+            <h3>{{fromLanguageName}} text</h3>
         </div>
         <div class="col col-xs-4">
-            <b>{{toLanguageName}} translation</b>
+            <h3>{{toLanguageName}} translation</h3>
             <div><button class="btn btn-link downloadButton">Download translation as file</button></div>
+            <div><button class="btn btn-success btn submitButton">Submit translation</button></div>
             <div>{{> translationProgress this}}</div>
+
         </div>
         <div class="col col-xs-4">
-            <b>Google translation</b> (if available)
+            <h3>Google translation</h3> (if available)
         </div>
     </div>
 
@@ -31,7 +33,11 @@
             </div>
             <div class="col col-xs-4">
                 <div class="{{maybeRightToLeft}}">
-                    <textarea rows="{{rowsToUseForTranslatedText}}" class="translationTextArea {{borderClass}}" data-key="{{this}}" placeholder="Type your translation here...">{{toLanguageText}}</textarea>
+                    <textarea
+                            rows="{{rowsToUseForTranslatedText}}"
+                            class="translationTextArea {{borderClass}}"
+                            data-key="{{this}}"
+                            placeholder="Type your translation here, or leave it blank to use the {{fromLanguageName}} text...">{{toLanguageText}}</textarea>
                 </div>
             </div>
             <div class="col col-xs-4">

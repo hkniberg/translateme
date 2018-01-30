@@ -1,0 +1,43 @@
+<template name="review">
+    <h1>Review translation from {{fromLanguageName}} to {{toLanguageName}}</h1>
+
+    <div class="row">
+        <div class="col col-xs-4">
+            <h3>Submitted {{toLanguageName}} translation</h3>
+            <div><button class="btn btn-link downloadButton">Download translation as file</button></div>
+
+        </div>
+        <div class="col col-xs-4">
+            <h3>Google translation from {{toLanguageName}} back to {{fromLanguageName}}</h3>
+        </div>
+        <div class="col col-xs-4">
+            <h3>Original {{fromLanguageName}} text</h3>
+        </div>
+    </div>
+
+    {{#each textKeys}}
+        <div class="row">
+            <div class="col col-xs-4">
+                {{#if toLanguageText}}
+                    <div class="well well-sm {{borderClass}}" style="margin-bottom: 5px;">
+                        <div class="translationText">{{toLanguageText}}</div>
+                    </div>
+                {{else}}
+                    <div class="alert alert-danger"></div>
+                {{/if}}
+            </div>
+            <div class="col col-xs-4">
+                {{#if googleTranslationText}}
+                    <div class="well well-sm"><div class="translationText">{{googleTranslationText}}</div></div>
+                {{/if}}
+            </div>
+            <div class="col col-xs-4">
+                <div class="well well-sm">
+                    <div class="translationText">{{fromLanguageText}}</div>
+                </div>
+            </div>
+        </div>
+    {{/each}}
+    <div><button class="btn btn-link downloadButton">Download translation as file</button></div>
+
+</template>

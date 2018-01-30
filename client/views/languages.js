@@ -8,15 +8,20 @@ import {signInToGitHub} from "./../gitHubClientUtil";
 import {setLanguageData} from "./../translationStatus";
 import {getCachedGoogleTranslation} from "./../googleTranslationCache";
 import {cacheGoogleTranslation} from "./../googleTranslationCache";
+import {loadLanguageDataFromLocalStorage} from "../translationStatus";
 
 const languageInfosVar = new ReactiveVar()
 const selectedLanguageCodeVar = new ReactiveVar()
-const isGitHubErrorVar = new ReactiveVar()
+const repoNotFoundVar = new ReactiveVar()
+const parseErrorVar = new ReactiveVar()
 const loadingTextsVar = new ReactiveVar(false)
+const parseErrorLanguageInfoVar = new ReactiveVar(null)
 
 Template.languages.onRendered(function() {
   setLoading(true)
-  isGitHubErrorVar.set(false)
+  repoNotFoundVar.set(false)
+  parseErrorVar.set(false)
+  parseErrorLanguageInfoVar.set(null)
   clearError("languages")
 
   const data = Template.currentData()
@@ -25,8 +30,8 @@ Template.languages.onRendered(function() {
     setLoading(false)
     if (err) {
       console.log("Got error", err)
-      if (err.error == "gitHubError") {
-        isGitHubErrorVar.set(true)
+      if (err.error == "notFound") {
+        repoNotFoundVar.set(true)
       } else {
         setError("languages", "getTranslationOverview failed", err)
       }
@@ -92,9 +97,18 @@ Template.languages.helpers({
     }
   },
 
-  gitHubError() {
-    return isGitHubErrorVar.get()
+  repoNotFound() {
+    return repoNotFoundVar.get()
+  },
+  
+  parseError() {
+    return parseErrorVar.get()
+  },
+  
+  parseErrorLanguageInfo() {
+    return parseErrorLanguageInfoVar.get()
   }
+  
 })
 
 Template.languages.events({
@@ -119,9 +133,12 @@ function isProjectLanguageCode(languageCode) {
 }
 
 function getLanguageInfo(languageCode) {
-  return languageInfosVar.get().find((languageInfo) => {
+  console.log("getLanguageInfo", languageCode, languageInfosVar.get())
+  const result = languageInfosVar.get().find((languageInfo) => {
     return languageCode == languageInfo.languageCode
   })
+  console.log("result", result)
+  return result
 }
 
 function createNewTranslation() {
@@ -130,19 +147,31 @@ function createNewTranslation() {
   const data = Template.currentData()
 
   loadingTextsVar.set(true)
+  parseErrorVar.set(null)
+  parseErrorLanguageInfoVar.set(null)
+  
   clearError("languages", true)
 
   const fromLanguageInfo = getLanguageInfo(fromLanguageCode)
 
   Meteor.call("getLanguageDatas", data.owner, data.repo, fromLanguageInfo, toLanguageCode, getGitHubAccessToken(), function(err, languageDatas) {
+    loadingTextsVar.set(false)
     if (err) {
-      setError("languages", "getLanguageDatas failed", err)
+      if (err.error == "parseError") {
+        if (err.details) {
+          parseErrorVar.set(err.details)
+          parseErrorLanguageInfoVar.set(fromLanguageInfo)
+        }
+      } else {
+        setError("languages", "getLanguageDatas failed", err)
+      }
       return
     }
-    setLanguageData(fromLanguageCode, languageDatas.fromLanguage)
-    setLanguageData(toLanguageCode, languageDatas.toLanguage)
-
-    loadingTextsVar.set(false)
+    setLanguageData(data.owner, data.repo, fromLanguageCode, languageDatas.fromLanguage)
+    setLanguageData(data.owner, data.repo, toLanguageCode, languageDatas.toLanguage)
+    if (Object.getOwnPropertyNames(languageDatas.toLanguage.texts).length == 0) {
+      loadLanguageDataFromLocalStorage(data.owner, data.repo, toLanguageCode)
+    }
 
     triggerGoogleTranslation(languageDatas.fromLanguage, toLanguageCode)
 

@@ -20,7 +20,7 @@ Template.submitTranslation.onRendered(function() {
   console.assert(data.fromLanguageCode, "Missing owner")
   console.assert(data.toLanguageCode, "Missing owner")
 
-  if (!getLanguageData(data.toLanguageCode)) {
+  if (!getLanguageData(data.owner, data.repo, data.toLanguageCode)) {
     Router.go('/')
     console.log("Darn! Looks like your session has expired!")
   }
@@ -64,8 +64,7 @@ Template.submitTranslation.helpers({
      {fileName: ...., fileContent: ....}
    */
   translationDoc() {
-    console.log("content", getLanguageFileData(this.toLanguageCode).fileContent)
-    return getLanguageFileData(this.toLanguageCode)
+    return getLanguageFileData(this.owner, this.repo, this.toLanguageCode)
   },
 
   toLanguageName() {
@@ -83,23 +82,27 @@ Template.submitTranslation.events({
   },
 
   "click .downloadButton"() {
-    downloadLanguageFile(this.toLanguageCode)
+    downloadLanguageFile(this.owner, this.repo, this.toLanguageCode)
   },
   
   "click .signIn"() {
     signInToGitHub()
-  }  
+  },
+
+  "click .translateToAnother"() {
+    Router.go("languages", {repo: this.repo, owner: this.owner})
+  }
 })
 
 function submit() {
   clearError("submitTranslation")
   const data = Template.currentData()
-  const toLanguageData = getLanguageData(data.toLanguageCode)
+  const toLanguageData = getLanguageData(data.owner, data.repo, data.toLanguageCode)
   const comment = $(".commentInput").val()
   submittingVar.set(true)
   resultVar.set(null)
 
-  const fromLanguageData = getLanguageData(data.fromLanguageCode)
+  const fromLanguageData = getLanguageData(data.owner, data.repo, data.fromLanguageCode)
   const fromLanguageInfo = {
     languageCode: fromLanguageData.languageCode,
     languageName: fromLanguageData.languageName,

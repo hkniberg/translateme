@@ -16,7 +16,6 @@ Expected data context:
   - toLanguageCode
  */
 Template.translate.onRendered(function() {
-  console.log("translate onRendered", Template.currentData())
   const data = Template.currentData()
   console.assert(data.owner, "owner missing")
   console.assert(data.repo, "repo missing")
@@ -27,11 +26,16 @@ Template.translate.onRendered(function() {
 Template.translate.helpers({
 
   textKeys() {
-    return getTextKeys(this.fromLanguageCode)
+    return getTextKeys(this.owner, this.repo, this.fromLanguageCode)
   },
 
   fromLanguageName() {
-    return getLanguageName(this.fromLanguageCode)
+    let fromLanguageCode = Template.currentData().fromLanguageCode
+    if (!fromLanguageCode) {
+      fromLanguageCode = Template.parentData().fromLanguageCode
+    }
+    
+    return getLanguageName(fromLanguageCode)
   },
 
   toLanguageName() {
@@ -44,8 +48,9 @@ Template.translate.helpers({
 
   rowsToUseForTranslatedText() {
     const key = this
-    const fromLanguageCode = Template.parentData().fromLanguageCode
-    const fromLanguageText = getLanguageText(fromLanguageCode, key)
+    const data = Template.parentData()
+    const fromLanguageCode = data.fromLanguageCode
+    const fromLanguageText = getLanguageText(data.owner, data.repo, fromLanguageCode, key)
     if (fromLanguageText) {
       return Math.max(fromLanguageText.length / 20, 2)
     } else {
@@ -59,14 +64,16 @@ Template.translate.helpers({
 
   fromLanguageText() {
     const key = this
-    const fromLanguageCode = Template.parentData().fromLanguageCode
-    return getLanguageText(fromLanguageCode, key)
+    const data = Template.parentData()
+    const fromLanguageCode = data.fromLanguageCode
+    return getLanguageText(data.owner, data.repo, fromLanguageCode, key)
   },
 
   toLanguageText() {
     const key = this
-    const toLanguageCode = Template.parentData().toLanguageCode
-    return getLanguageText(toLanguageCode, key)
+    const data = Template.parentData()
+    const toLanguageCode = data.toLanguageCode
+    return getLanguageText(data.owner, data.repo, toLanguageCode, key)
   },
 
   googleTranslationText() {
@@ -86,24 +93,25 @@ Template.translate.events({
     const key = $(textArea).data("key")
     const translatedText = $(textArea).val()
     
-    setLanguageText(toLanguageCode, key, translatedText)
+    setLanguageText(data.owner, data.repo, toLanguageCode, key, translatedText)
   },
 
   "click .copyButton"(event) {
     const button = event.target
     const key = $(button).data("key")
-    const fromLanguageCode = Template.currentData().fromLanguageCode
-    const toLanguageCode = Template.currentData().toLanguageCode
+    const data = Template.currentData()
+    const fromLanguageCode = data.fromLanguageCode
+    const toLanguageCode = data.toLanguageCode
 
 
     const googleTranslation = getCachedGoogleTranslation(key, fromLanguageCode, toLanguageCode)
     if (googleTranslation) {
-      setLanguageText(toLanguageCode, key, googleTranslation)
+      setLanguageText(data.owner, data.repo, toLanguageCode, key, googleTranslation)
     }
   },
 
   "click .downloadButton"(event) {
-    downloadLanguageFile(this.toLanguageCode)
+    downloadLanguageFile(this.owner, this.repo, this.toLanguageCode)
   },
 
   "click .submitButton"(event) {
@@ -117,8 +125,8 @@ Template.translate.events({
 })
 
 
-function getTextKeys(languageCode) {
-  const languageData = getLanguageData(languageCode)
+function getTextKeys(owner, repo, languageCode) {
+  const languageData = getLanguageData(owner, repo, languageCode)
   return Object.getOwnPropertyNames(languageData.texts)
 }
 

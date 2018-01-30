@@ -4,10 +4,10 @@ import {saveLanguageDataToLocalStorage} from "./translationStatus";
 export function signInToGitHub() {
   const data = Template.currentData()
   if (data.fromLanguageCode) {
-    saveLanguageDataToLocalStorage(data.fromLanguageCode)
+    saveLanguageDataToLocalStorage(data.owner, data.repo, data.fromLanguageCode)
   }
   if (data.toLanguageCode) {
-    saveLanguageDataToLocalStorage(data.toLanguageCode)
+    saveLanguageDataToLocalStorage(data.owner, data.repo, data.toLanguageCode)
   }
 
   const clientId = Meteor.settings.public.clientId

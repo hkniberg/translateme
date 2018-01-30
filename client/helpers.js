@@ -54,8 +54,8 @@ export function clearError(context) {
 /*
 return {fileName: xxx, fileContent: yyy} (both strings)
  */
-export function getLanguageFileData(languageCode) {
-  const languageData = getLanguageData(languageCode)
+export function getLanguageFileData(owner, repo, languageCode) {
+  const languageData = getLanguageData(owner, repo, languageCode)
   const plugin = getPluginByName(languageData.fileFormat)
   const fileName = plugin.getFileNameForLanguage(languageCode)
   return {
@@ -64,7 +64,7 @@ export function getLanguageFileData(languageCode) {
   }
 }
 
-export function downloadLanguageFile(languageCode) {
+export function downloadLanguageFile(owner, repo, languageCode) {
   console.log("downloadLanguageFile", languageCode)
 
   const fileData = getLanguageFileData(languageCode)
