@@ -2,13 +2,14 @@ import {Session} from "meteor/session"
 import {setError} from "./helpers";
 import {clearError} from "./helpers";
 import {setGitHubAccessToken} from "./authentication";
+import {getLanguageData} from "./translationStatus";
+import {loadLanguageDataFromLocalStorage} from "./translationStatus";
 
 Template.oauthCallback.onRendered(function() {
   clearError("oauthCallback")
   const query = Router.current().params.query
   const code = query.code
 
-  console.log("x", Session.get("x"))
   const path = query.state
 
   Meteor.call("requestGitHubAccessToken", code, function(err, token) {

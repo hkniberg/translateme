@@ -1,6 +1,15 @@
 import {Session} from "meteor/session"
+import {saveLanguageDataToLocalStorage} from "./translationStatus";
 
 export function signInToGitHub() {
+  const data = Template.currentData()
+  if (data.fromLanguageCode) {
+    saveLanguageDataToLocalStorage(data.fromLanguageCode)
+  }
+  if (data.toLanguageCode) {
+    saveLanguageDataToLocalStorage(data.toLanguageCode)
+  }
+
   const clientId = Meteor.settings.public.clientId
   console.assert(clientId, "clientId is missing from Meteor.settings.public!")
 
@@ -11,7 +20,7 @@ export function signInToGitHub() {
   url = url + "&state=" + encodeURIComponent(path)
   url = url + "&scope=repo"
 
-  Session.set("x", 23)
+  console.log("Opening ", url)
   
   window.open(url, "_self")
 }

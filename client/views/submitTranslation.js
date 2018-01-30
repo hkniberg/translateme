@@ -6,9 +6,6 @@ import {getLanguageData} from "./../translationStatus";
 import {downloadLanguageFile} from "./../helpers";
 import {signInToGitHub} from "./../gitHubClientUtil";
 import {isSignedInToGitHub} from "./../authentication";
-import {saveLanguageDataToLocalStorage} from "./../translationStatus";
-import {loadLanguageDataFromLocalStorage} from "./../translationStatus";
-import {getPluginByName} from "../../lib/initPlugins";
 import {getLanguageFileData} from "../helpers";
 
 const submittingVar = new ReactiveVar(false)
@@ -22,13 +19,6 @@ Template.submitTranslation.onRendered(function() {
   console.assert(data.repo, "Missing repo")
   console.assert(data.fromLanguageCode, "Missing owner")
   console.assert(data.toLanguageCode, "Missing owner")
-
-  if (!getLanguageData(data.fromLanguageCode)) {
-    loadLanguageDataFromLocalStorage(data.fromLanguageCode)
-  }
-  if (!getLanguageData(data.toLanguageCode)) {
-    loadLanguageDataFromLocalStorage(data.toLanguageCode)
-  }
 
   if (!getLanguageData(data.toLanguageCode)) {
     Router.go('/')
@@ -97,8 +87,6 @@ Template.submitTranslation.events({
   },
   
   "click .signIn"() {
-    saveLanguageDataToLocalStorage(this.fromLanguageCode)
-    saveLanguageDataToLocalStorage(this.toLanguageCode)
     signInToGitHub()
   }  
 })

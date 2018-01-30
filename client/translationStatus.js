@@ -24,7 +24,13 @@ export function loadLanguageDataFromLocalStorage(languageCode) {
 export function getLanguageData(languageCode) {
   console.assert(languageCode, "languageCode is required")
 
-  return Session.get("languageData-" + languageCode)
+  const languageData = Session.get("languageData-" + languageCode)
+  if (!languageData) {
+    loadLanguageDataFromLocalStorage(languageCode)
+    Session.get("languageData-" + languageCode)
+  } else {
+    return languageData
+  }
 }
 
 export function setLanguageText(languageCode, key, text) {
