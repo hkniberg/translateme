@@ -14,10 +14,21 @@
     width: 100%;
 }
 
-.gitHubStatus {
+.topBar {
     background-color: #dcdcdc;
     border-radius: 10px;
     padding: 5px;
+    margin-top: 5px;
+}
+
+.topBarTitle {
+    font-size: x-large;
+    display: inline-block;
+}
+
+.gitHubStatus {
+    display: inline-block;
+    float: right;
 }
 
 .translateButton {

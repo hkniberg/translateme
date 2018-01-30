@@ -7,9 +7,15 @@ export function testFileName(pluginName, languageCode, path) {
 
   const plugin = getPlugin(pluginName)
   const fileName = util.removeParentsFromPath(path)
-  expect(plugin.getFileNameForLanguage(languageCode)).to.equal(fileName)
-  expect(plugin.getLanguageOfFile(fileName)).to.equal(languageCode)
-  expect(plugin.getLanguageOfFile(path)).to.equal(languageCode)
+  if (languageCode == null) {
+    expect(plugin.getLanguageOfFile(fileName)).to.be.null
+    expect(plugin.getLanguageOfFile(path)).to.be.null
+  } else {
+    expect(plugin.getFileNameForLanguage(languageCode)).to.equal(fileName)
+    expect(plugin.getLanguageOfFile(fileName)).to.equal(languageCode)
+    expect(plugin.getLanguageOfFile(path)).to.equal(languageCode)
+  }
+
 }
 
 export function testFileParsing(pluginName) {

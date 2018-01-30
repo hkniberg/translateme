@@ -3,20 +3,21 @@
 
     <p>Wouldn't it be great if people could easily translate your github project?</p>
 
+    <p>Here's how to embed a Translate Me button or link on your site:</p>
     <ol>
         <li>Find your project on github</li>
         <li>Navigate to your base language file, the one that contains the default locale that you use during development.</li>
         <li>Copy the github URL to that file and paste below<br>
-            For example: https://github.com/hkniberg/dingoblat/blob/master/i18n/en.i18n.json
+            For example: <a target="example" href="https://github.com/hkniberg/dingoblat/blob/master/i18n/en.i18n.json">https://github.com/hkniberg/dingoblat/blob/master/i18n/en.i18n.json</a>
         </li>
     </ol>
-
-    <p class="help-block"></p>
 
     <b>GitHub URL to your base language file</b>
     <div>
         <input type="input" class="projectUrl" placeholder="https://github.com/...." size="100">
     </div>
+
+    {{> error "createButton"}}
 
     {{#if checking}}
         {{> spinner}}

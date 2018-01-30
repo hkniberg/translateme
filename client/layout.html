@@ -6,7 +6,10 @@
 
 <template name="layout">
     <div class="container-fluid">
-        {{> gitHubStatus}}
+        <div class="topBar">
+            <div class="topBarTitle"><a href="/">TranslateMe</a></div>
+            {{> gitHubStatus}}
+        </div>
 
         {{> yield}}
     </div>

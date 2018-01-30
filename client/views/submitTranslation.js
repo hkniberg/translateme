@@ -82,7 +82,8 @@ Template.submitTranslation.events({
   },
 
   "click .downloadButton"() {
-    downloadLanguageFile(this.owner, this.repo, this.toLanguageCode)
+    const data = Template.currentData()
+    downloadLanguageFile(data.owner, data.repo, data.toLanguageCode)
   },
   
   "click .signIn"() {

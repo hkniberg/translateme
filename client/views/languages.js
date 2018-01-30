@@ -27,6 +27,7 @@ Template.languages.onRendered(function() {
   const data = Template.currentData()
   
   Meteor.call("getLanguageInfos", data.owner, data.repo, data.baseLanguagePath, getGitHubAccessToken(), function(err, languageInfos) {
+    console.log("getLanguageInfos", languageInfos)
     setLoading(false)
     if (err) {
       console.log("Got error", err)

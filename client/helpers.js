@@ -69,7 +69,7 @@ export function getLanguageFileData(owner, repo, languageCode) {
 export function downloadLanguageFile(owner, repo, languageCode) {
   console.log("downloadLanguageFile", languageCode)
 
-  const fileData = getLanguageFileData(languageCode)
+  const fileData = getLanguageFileData(owner, repo, languageCode)
 
   const href = 'data:application/json;charset=utf-8,'+ encodeURIComponent(fileData.fileContent);
   const linkElement = document.createElement('a');

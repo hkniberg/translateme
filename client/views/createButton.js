@@ -1,6 +1,7 @@
 import {parseGitUrl} from "../../lib/util";
 import {getGitHubAccessToken} from "../authentication";
 import {setError} from "../helpers";
+import {clearError} from "../helpers";
 
 const checkingVar = new ReactiveVar(false)
 const repoNotFoundVar = new ReactiveVar(false)
@@ -41,8 +42,13 @@ Template.createButton.helpers({
 
 Template.createButton.events({
   "click .createButtonButton"() {
+    clearError("createButton")
     const url = $(".projectUrl").val()
     const parsedUrl = parseGitUrl(url)
+    if (!parsedUrl) {
+      setError("createButton", "Er, darn I couldn't parse that GitHub URL")
+      return
+    }
     const owner = parsedUrl.owner
     const repo = parsedUrl.repo
     const path = parsedUrl.path
