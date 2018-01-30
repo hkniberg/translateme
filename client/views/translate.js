@@ -1,9 +1,9 @@
-import {getLanguageName} from "../lib/data/languages";
-import {getCachedGoogleTranslation} from "./googleTranslationCache";
-import {setLanguageText} from "./translationStatus";
-import {getLanguageText} from "./translationStatus";
-import {getLanguageData} from "./translationStatus";
-import {downloadTranslation} from "./helpers";
+import {getLanguageName} from "../../lib/data/languages";
+import {getCachedGoogleTranslation} from "./../googleTranslationCache";
+import {setLanguageText} from "./../translationStatus";
+import {getLanguageText} from "./../translationStatus";
+import {getLanguageData} from "./../translationStatus";
+import {downloadLanguageFile} from "./../helpers";
 
 
 const loadingVar = new ReactiveVar(true)
@@ -103,7 +103,7 @@ Template.translate.events({
   },
 
   "click .downloadButton"(event) {
-    downloadTranslation(this.fromLanguageCode, this.toLanguageCode)
+    downloadLanguageFile(this.toLanguageCode)
   },
 
   "click .submitButton"(event) {

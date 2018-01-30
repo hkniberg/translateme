@@ -1,13 +1,13 @@
 import {Session} from "meteor/session"
-import {setLoading} from "./helpers";
-import {setError} from "./helpers";
-import {clearError} from "./helpers";
-import {getAllLanguages} from "../lib/data/languages";
-import {getGitHubAccessToken} from "./authentication";
-import {signInToGitHub} from "./gitHubClientUtil";
-import {setLanguageData} from "./translationStatus";
-import {getCachedGoogleTranslation} from "./googleTranslationCache";
-import {cacheGoogleTranslation} from "./googleTranslationCache";
+import {setLoading} from "./../helpers";
+import {setError} from "./../helpers";
+import {clearError} from "./../helpers";
+import {getAllLanguages} from "../../lib/data/languages";
+import {getGitHubAccessToken} from "./../authentication";
+import {signInToGitHub} from "./../gitHubClientUtil";
+import {setLanguageData} from "./../translationStatus";
+import {getCachedGoogleTranslation} from "./../googleTranslationCache";
+import {cacheGoogleTranslation} from "./../googleTranslationCache";
 
 const languageInfosVar = new ReactiveVar()
 const selectedLanguageCodeVar = new ReactiveVar()
@@ -21,7 +21,6 @@ Template.languages.onRendered(function() {
 
   const data = Template.currentData()
 
-  console.log("calling getLanguages with gitHubAccessToken", getGitHubAccessToken())
   Meteor.call("getLanguageInfos", data.owner, data.repo, getGitHubAccessToken(), function(err, languageInfos) {
     setLoading(false)
     if (err) {
@@ -34,8 +33,6 @@ Template.languages.onRendered(function() {
       return
     }
 
-
-    console.log("Got languageInfos", languageInfos)
     languageInfosVar.set(languageInfos)
     
   })
@@ -76,17 +73,13 @@ Template.languages.helpers({
 
 
   projectLanguagesExceptBase() {
-    console.log("projectLanguagesExceptBase")
     const projectLanguages = languageInfosVar.get()
     const baseLanguageCode = $(".updateFromLanguageCode").val()
-    console.log("baseLanguageCode", baseLanguageCode)
     if (baseLanguageCode) {
       return languageInfosVar.get().filter((language) => {
-        console.log("Comparing " + language.languageCode + " with " + baseLanguageCode)
         return language.languageCode != baseLanguageCode
       })
     } else {
-      console.log("no base")
       return projectLanguages
     }
   },
@@ -139,12 +132,9 @@ function createNewTranslation() {
   loadingTextsVar.set(true)
   clearError("languages", true)
 
-  console.log("Calling getLanguageDatas")
-
   const fromLanguageInfo = getLanguageInfo(fromLanguageCode)
 
   Meteor.call("getLanguageDatas", data.owner, data.repo, fromLanguageInfo, toLanguageCode, getGitHubAccessToken(), function(err, languageDatas) {
-    console.log("getLanguageDatas done", err, languageDatas)
     if (err) {
       setError("languages", "getLanguageDatas failed", err)
       return

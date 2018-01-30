@@ -52,3 +52,7 @@ export function getLanguageText(languageCode, key) {
 
   return languageData.texts[key]
 }
+
+export function getLanguageFileContents(languageCode, key) {
+  
+}

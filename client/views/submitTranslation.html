@@ -89,10 +89,8 @@
 
         <div class="col col-xs-6">
             <p>Here is the language file we'll send</p>
-            <div><button class="btn btn-link downloadButton">Download it</button></div>
-            <div class="translationPreview">
-                {{translationDoc}}
-            </div>
+            <div><button class="btn btn-link downloadButton">Download {{translationDoc.fileName}}</button></div>
+            <div class="translationPreview">{{translationDoc.fileContent}}</div>
 
         </div>
 

@@ -1,13 +1,15 @@
-import {clearError} from "./helpers";
-import {setError} from "./helpers";
-import {getGitHubAccessToken} from "./authentication";
-import {getLanguageName} from "../lib/data/languages";
-import {getLanguageData} from "./translationStatus";
-import {downloadTranslation} from "./helpers";
-import {signInToGitHub} from "./gitHubClientUtil";
-import {isSignedInToGitHub} from "./authentication";
-import {saveLanguageDataToLocalStorage} from "./translationStatus";
-import {loadLanguageDataFromLocalStorage} from "./translationStatus";
+import {clearError} from "./../helpers";
+import {setError} from "./../helpers";
+import {getGitHubAccessToken} from "./../authentication";
+import {getLanguageName} from "../../lib/data/languages";
+import {getLanguageData} from "./../translationStatus";
+import {downloadLanguageFile} from "./../helpers";
+import {signInToGitHub} from "./../gitHubClientUtil";
+import {isSignedInToGitHub} from "./../authentication";
+import {saveLanguageDataToLocalStorage} from "./../translationStatus";
+import {loadLanguageDataFromLocalStorage} from "./../translationStatus";
+import {getPluginByName} from "../../lib/initPlugins";
+import {getLanguageFileData} from "../helpers";
 
 const submittingVar = new ReactiveVar(false)
 const resultVar = new ReactiveVar(false)
@@ -28,7 +30,6 @@ Template.submitTranslation.onRendered(function() {
     loadLanguageDataFromLocalStorage(data.toLanguageCode)
   }
 
-  console.log("submitTranslation - languageData = ", getLanguageData(data.toLanguageCode))
   if (!getLanguageData(data.toLanguageCode)) {
     Router.go('/')
     console.log("Darn! Looks like your session has expired!")
@@ -69,11 +70,12 @@ Template.submitTranslation.helpers({
     }
   },
 
+  /*
+     {fileName: ...., fileContent: ....}
+   */
   translationDoc() {
-    const languageData = getLanguageData(this.toLanguageCode)
-    if (languageData) {
-      return JSON.stringify(languageData.texts, null, 2)
-    }
+    console.log("content", getLanguageFileData(this.toLanguageCode).fileContent)
+    return getLanguageFileData(this.toLanguageCode)
   },
 
   toLanguageName() {
@@ -91,7 +93,7 @@ Template.submitTranslation.events({
   },
 
   "click .downloadButton"() {
-    downloadTranslation(this.fromLanguageCode, this.toLanguageCode)
+    downloadLanguageFile(this.toLanguageCode)
   },
   
   "click .signIn"() {
@@ -104,14 +106,20 @@ Template.submitTranslation.events({
 function submit() {
   clearError("submitTranslation")
   const data = Template.currentData()
-  const languageData = getLanguageData(data.toLanguageCode)
+  const toLanguageData = getLanguageData(data.toLanguageCode)
   const comment = $(".commentInput").val()
   submittingVar.set(true)
   resultVar.set(null)
 
-  console.log("calling submitTranslation...")
-  Meteor.call("submitTranslation", data.owner, data.repo, data.fromLanguageCode, data.toLanguageCode, languageData.texts, comment,  getGitHubAccessToken(), function(err, result) {
-    console.log("Done!", err, result)
+  const fromLanguageData = getLanguageData(data.fromLanguageCode)
+  const fromLanguageInfo = {
+    languageCode: fromLanguageData.languageCode,
+    languageName: fromLanguageData.languageName,
+    path: fromLanguageData.path,
+    fileFormat: fromLanguageData.fileFormat
+  }
+
+  Meteor.call("submitTranslation", data.owner, data.repo, fromLanguageInfo, data.toLanguageCode, toLanguageData.texts, comment,  getGitHubAccessToken(), function(err, result) {
     submittingVar.set(false)
     if (err) {
       setError("submitTranslation", "forkRepo method failed!", err)

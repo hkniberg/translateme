@@ -1,7 +1,7 @@
 import {Session} from "meteor/session"
 import {getLanguageName} from "../lib/data/languages";
 import {getLanguageData} from "./translationStatus";
-import {getPluginByName} from "../lib/plugins"
+import {getPluginByName} from "../lib/initPlugins"
 Template.registerHelper('owner', function() {
   return Session.get("owner")
 })
@@ -51,22 +51,27 @@ export function clearError(context) {
   Session.set("error " + context, null)
 }
 
-export function downloadTranslation(fromLanguageCode, toLanguageCode) {
-  console.log("getLanguageData", fromLanguageCode, toLanguageCode)
+/*
+return {fileName: xxx, fileContent: yyy} (both strings)
+ */
+export function getLanguageFileData(languageCode) {
+  const languageData = getLanguageData(languageCode)
+  const plugin = getPluginByName(languageData.fileFormat)
+  const fileName = plugin.getFileNameForLanguage(languageCode)
+  return {
+    fileName: fileName,
+    fileContent: plugin.convertLanguageTextsToFileContents(fileName, languageData.texts)
+  }
+}
 
+export function downloadLanguageFile(languageCode) {
+  console.log("downloadLanguageFile", languageCode)
 
+  const fileData = getLanguageFileData(languageCode)
 
-  const toLanguageData = getLanguageData(toLanguageCode)
-  const texts = toLanguageData.texts
-
-  const plugin = getPluginByName(toLanguageData.fileFormat)
-  const updatedTexts = plugin.renameKeys(fromLanguageCode, toLanguageCode, texts)
-
-  const fileContent = plugin.convertLanguageTextsToFileContents(updatedTexts)
-  const fileName = plugin.getFileNameForLanguage(toLanguageCode)
-  const href = 'data:application/json;charset=utf-8,'+ encodeURIComponent(fileContent);
+  const href = 'data:application/json;charset=utf-8,'+ encodeURIComponent(fileData.fileContent);
   const linkElement = document.createElement('a');
   linkElement.setAttribute('href', href);
-  linkElement.setAttribute('download', fileName);
+  linkElement.setAttribute('download', fileData.fileName);
   linkElement.click();
 }

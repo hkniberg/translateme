@@ -1,4 +1,4 @@
-import {parseGitUrl} from "../lib/util";
+import {parseGitUrl} from "../../lib/util";
 
 const translationUrlVar = new ReactiveVar()
 

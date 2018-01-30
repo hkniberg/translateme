@@ -1,3 +1,5 @@
+# Plugin architecture
+
 Different github projects may have different file structures and conventions
 for where to put locale files, and which format to use for them.
 
@@ -7,7 +9,7 @@ Each type of repo has a ProjectStructure object, which has the following functio
 
 ```
 /*
-  Some kind of display name (mostly for logging purposes)
+  Should be the same as the file name, without the extension.
 */
 getName()
 
@@ -39,13 +41,13 @@ getFileNameForLanguage(languageCode)
     Takes the given locale file contents (string) and returns all language texts as a flat set of key/value pairs,
     for example {heading1: "Welcome", heading2: "We love you"}
 */
-convertFileContentsToLanguageTexts(fileContents)
+convertFileContentsToLanguageTexts(fileName, fileContents)
 
 /*
     Takes the given language texts (as flat key/value pairs) and turns them into whatever format the file should contain.
     This should be the reverse of loadFileContents(...)
 */
-convertLanguageTextsToFileContents(languageTexts)
+convertLanguageTextsToFileContents(fileName, languageTexts)
 
 
 
@@ -53,7 +55,8 @@ convertLanguageTextsToFileContents(languageTexts)
 
 ```
 
+# How to install a plugin
 
-
-
-TranslateMe can be "taught" about different types of project file structures
+1. Put your plugin file under /lib/plugins/xxx.js
+2. Add your plugin name to the pluginNames array at the top of /lib/initPlugins.js
+3. Add a test case and at least one sample file under /test (see /test/meteorTap or /test/rails for an example)

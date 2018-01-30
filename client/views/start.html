@@ -1,7 +1,7 @@
 <template name="start">
     <h1>Translate Me - crowd translation simplified</h1>
 
-    <div><img src="/image/introdrawing.png" width="500px"></div>
+    <div><img src="/image/IntroDrawing.png" width="500px"></div>
 
     <div>
         <button class="btn btn-primary btn-lg btn-space translate">{{_ "translateAProject"}}</button>
@@ -15,7 +15,7 @@
     </a>
     <div class="collapse" id="details">
         <div class="well">
-            <h3>Glad you asked!</h3>
+            <h3>What is this?</h3>
             <p>
                 Lots of people are willing to translate online projects and service for free,
                 as long as it's simple to do. For example <a href="AgileManifesto.org">AgileManifesto.org</a> was translated to over 60 languages by volunteers.
@@ -25,11 +25,22 @@
                 All you do is:
             </p>
             <ol>
-                <li>Pick a githubproject to translate</li>
+                <li>Pick a github project to translate</li>
                 <li>Pick a language to translate it to</li>
                 <li>Do the translation directly online, assisted by google translate as a starting point</li>
                 <li>With a single click, submit the translation to the project owner as a github pull request</li>
             </ol>
+
+            <h3>OK so what's the catch?</h3>
+            <p>There's always a catch, right?</p>
+            <p>The catch is that different projects use different localization file formats,
+                and put them in different places in the file structure.
+                So TranslateMe only supports a few layouts and formats. This will gradually increase over time probably,
+                and <a href="https://github.com/hkniberg/translateme/blob/master/plugins.md">you can help</a>.
+            </p>
+            <p>
+                Once you select a github project above, I'll let you know if I support that format or not.
+            </p>
         </div>
     </div>
 
