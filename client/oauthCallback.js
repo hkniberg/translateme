@@ -16,6 +16,7 @@ Template.oauthCallback.onRendered(function() {
       return
     }
     setGitHubAccessToken(token)
+    console.log("Will go to " + path)
     Router.go(path)
   })
 })

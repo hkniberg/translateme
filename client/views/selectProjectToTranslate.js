@@ -15,5 +15,6 @@ Template.selectProjectToTranslate.events({
 function submit() {
   const url = $(".projectUrl").val()
   const parsedUrl = parseGitUrl(url)
+  
   Router.go("/languages/" + parsedUrl.owner + "/" + parsedUrl.repo)
 }
