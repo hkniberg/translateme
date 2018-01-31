@@ -3,5 +3,5 @@ node_modules/
 .DS_Store
 settings.json
 production-config.json
-*.sh
+run.sh
 build
