@@ -90,7 +90,7 @@ export function triggerGoogleTranslation(owner, repo, fromLanguageData, toLangua
     const fromLanguageText = fromLanguageData.texts[key]
     if (!getCachedGoogleTranslation(owner, repo, key, fromLanguageCode, toLanguageCode)) {
       Meteor.call('googleTranslate', fromLanguageText, fromLanguageCode, toLanguageCode, function(err, translatedText) {
-        if (err) {
+        if (err || !translatedText) {
           translatedText = ""
         }
         cacheGoogleTranslation(owner, repo, key, fromLanguageCode, toLanguageCode, translatedText)
