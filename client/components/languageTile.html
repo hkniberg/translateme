@@ -1,0 +1,17 @@
+<!--
+  Data context is:
+  - languageInfo
+  - maxTextCount
+-->
+<template name="languageTile">
+    <div class="languageTile">
+        <div class="languageName">{{languageInfo.languageName}}</div>
+        <div class="languagePath">{{languageInfo.path}}</div>
+        <div class="languageDate">Updated {{formatDateHowLongAgo languageInfo.date}}</div>
+        <div class="progress progress-striped active" style="margin-bottom: 5px;">
+            <div class="progress-bar progress-bar-{{dangerOrSuccess}}" role="progressbar" data-transitiongoal="{{languageInfo.textCount}}" aria-valuemax="{{maxTextCount}}"></div>
+        </div>
+    </div>
+
+
+</template>

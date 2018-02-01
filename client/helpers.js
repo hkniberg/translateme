@@ -4,6 +4,7 @@ import {getLanguageData} from "./translationStatus";
 import {getPluginByName} from "../lib/initPlugins"
 import {cacheGoogleTranslation} from "./googleTranslationCache";
 import {getCachedGoogleTranslation} from "./googleTranslationCache";
+
 Template.registerHelper('owner', function() {
   return Session.get("owner")
 })
@@ -22,6 +23,10 @@ Template.registerHelper('loading', function() {
 
 Template.registerHelper('error', function(context) {
   return getError(context)
+})
+
+Template.registerHelper('formatDateHowLongAgo', function(date) {
+  return moment(date).fromNow()
 })
 
 export function isLoading() {
@@ -98,3 +103,4 @@ export function triggerGoogleTranslation(owner, repo, fromLanguageData, toLangua
     }
   })
 }
+

@@ -27,3 +27,4 @@ tap:i18n
 http
 bshamblen:iso-languages
 ldk:bootstrap-progressbar
+momentjs:moment

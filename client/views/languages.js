@@ -119,6 +119,15 @@ Template.languages.helpers({
   
   parseErrorLanguageInfo() {
     return parseErrorLanguageInfoVar.get()
+  },
+
+  languageTileData() {
+    const languageInfo = this
+    console.log("languageInfo", languageInfo)
+    return {
+      languageInfo: languageInfo,
+      maxTextCount: getMaxTextCount()
+    }
   }
   
 })
@@ -217,4 +226,12 @@ function getBaseLanguageInfo() {
   return languageInfosVar.get().find((languageInfo) => {
     return languageInfo.path == data.baseLanguagePath
   })
+}
+
+function getMaxTextCount() {
+  let max = 0
+  languageInfosVar.get().forEach((languageInfo) => {
+    max = Math.max(max, languageInfo.textCount)
+  })
+  return max
 }
