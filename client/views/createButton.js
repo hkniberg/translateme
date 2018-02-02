@@ -28,7 +28,7 @@ Template.createButton.helpers({
     const url = getTranslationUrl()
 
 
-    return `<div style="background-color: greenyellow; border: solid gray 1px; border-radius: 8px; padding: 3px; margin-top: 5px; display: inline-block;"><a href="${url}">Hi</a></div>`
+    return `<div style="background-color: greenyellow; border: solid gray 1px; border-radius: 8px; padding: 3px; margin-top: 5px; display: inline-block;"><a href="${url}">Translate Me</a></div>`
   },
   
   checking() {

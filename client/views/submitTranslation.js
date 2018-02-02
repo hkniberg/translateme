@@ -114,7 +114,7 @@ function submit() {
   Meteor.call("submitTranslation", data.owner, data.repo, fromLanguageInfo, data.toLanguageCode, toLanguageData.texts, comment,  getGitHubAccessToken(), function(err, result) {
     submittingVar.set(false)
     if (err) {
-      setError("submitTranslation", "forkRepo method failed!", err)
+      setError("submitTranslation", "The git voodoo failed! Sometimes it fails the first time and works the second time, not sure why. So try again!", err)
       return
     }
     resultVar.set(result)
