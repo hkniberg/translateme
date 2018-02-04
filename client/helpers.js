@@ -19,6 +19,10 @@ Template.registerHelper('languageDatas', function() {
   return session.getLanguageDatas(data.owner, data.repo)
 })
 
+Template.registerHelper('showIntroVideo', function() {
+  return Session.get("showIntroVideo")
+})
+
 
 Template.registerHelper('loading', function() {
   return isLoading()

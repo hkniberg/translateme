@@ -11,5 +11,12 @@
         <div class="mainContainer">
             {{> yield}}
         </div>
+
+        {{#if showIntroVideo}}
+            <div class="introVideo">
+                <h2>Intro video</h2>
+                <iframe src="https://player.vimeo.com/video/254195789" width="640" height="360" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
+            </div>
+        {{/if}}
     </div>
 </template>
