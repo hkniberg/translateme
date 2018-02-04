@@ -50,7 +50,7 @@ Template.translationProgress.helpers({
 
 function translatedTextCount(data) {
   if (data.toLanguageCode) {
-    const texts = session.getMergedTexts(data.owner, data.repo, data.toLanguageCode)
+    const texts = session.getMergedTexts(data.owner, data.repo, data.fromLanguageCode, data.toLanguageCode)
     if (texts) {
       console.log("texts", texts)
       const count = Object.getOwnPropertyNames(texts).length

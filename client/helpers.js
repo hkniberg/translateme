@@ -59,7 +59,7 @@ or null if fromLanguageData has not yet been loaded in the session
  */
 export function getLanguageFileData(owner, repo, fromLanguageCode, toLanguageCode) {
   console.log("getLanguageFileData", owner, repo, fromLanguageCode, toLanguageCode)
-  const mergedTexts = session.getMergedTexts(owner, repo, toLanguageCode)
+  const mergedTexts = session.getMergedTexts(owner, repo, fromLanguageCode, toLanguageCode)
   console.log("editedTexts", mergedTexts)
 
   const fromLanguageData = session.getLanguageData(owner, repo, fromLanguageCode)
@@ -104,9 +104,9 @@ export function triggerGoogleTranslationIfNeeded(owner, repo, fromLanguageData, 
   keys.forEach((key) => {
     const fromLanguageText = fromLanguageData.texts[key]
     if (!getCachedGoogleTranslation(owner, repo, key, fromLanguageCode, toLanguageCode)) {
-      console.log("Calling googleTranslate")
+      //console.log("Calling googleTranslate")
       Meteor.call('googleTranslate', fromLanguageText, fromLanguageCode, toLanguageCode, function(err, translatedText) {
-        console.log("result", err, translatedText)
+        //console.log("result", err, translatedText)
         if (err || !translatedText) {
           translatedText = ""
         }

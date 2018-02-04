@@ -1,5 +1,6 @@
 import {Session} from "meteor/session"
 import {storage} from "./storage"
+import {mergeLanguageTexts} from "../lib/merger";
 
 export const session = {
   setLanguageData(owner, repo, languageCode, languageData) {
@@ -220,35 +221,34 @@ export const session = {
     Session.set("repoNotFound", repoNotFound)
   },
 
-  getMergedTexts(owner, repo, toLanguageCode) {
+  getMergedTexts(owner, repo, fromLanguageCode, toLanguageCode) {
     console.log("getMergedTranslation")
-  
+
+    const fromLanguageData = this.getLanguageData(owner, repo, fromLanguageCode)
+
     const toLanguageData = this.getLanguageData(owner, repo, toLanguageCode)
-    console.log("toLanguageData", toLanguageData)
-  
     let translatedTextsFromGitHub = {}
     if (toLanguageData) {
       translatedTextsFromGitHub = toLanguageData.texts
     }
+
     let locallyEditedTexts = this.getEditedTexts(owner, repo, toLanguageCode)
-    if (!locallyEditedTexts) {
-      locallyEditedTexts = {}
-    }
-  
-    console.log("translatedTextsFromGitHub", translatedTextsFromGitHub)
-    console.log("locallyEditedTexts", locallyEditedTexts)
-  
-    let mergedTexts = {}
-    Object.assign(mergedTexts, translatedTextsFromGitHub)
-    Object.assign(mergedTexts, locallyEditedTexts)
 
-    console.log("mergedTexts", mergedTexts)
+    //console.log("\n==========================================\nWill merge")
+    //console.log("base", fromLanguageData.texts)
+    //console.log("saved", translatedTextsFromGitHub)
+    //console.log("edited", locallyEditedTexts)
 
-    const mergedTextsWithEmptyStringKeysRemoved = removeEmptyKeys(mergedTexts)
+    const mergedTexts = mergeLanguageTexts(
+      fromLanguageData.texts,
+      translatedTextsFromGitHub,
+      locallyEditedTexts
+    )
 
-    console.log("mergedTextsWithEmptyStringKeysRemoved", mergedTextsWithEmptyStringKeysRemoved)
-  
-    return mergedTextsWithEmptyStringKeysRemoved
+    //console.log("mergedTexts", mergedTexts)
+    //console.log("--------------------------------------------")
+
+    return mergedTexts
   }
 }
 

@@ -4,6 +4,7 @@ import {downloadLanguageFile} from "./../helpers";
 import {triggerGoogleTranslationIfNeeded} from "../helpers";
 import {session} from "../session"
 import {storage} from "../storage"
+import {getLanguageFileData} from "../helpers";
 
 const editedTextsVar = new ReactiveVar({})
 
@@ -30,7 +31,6 @@ Template.translate.onRendered(function() {
   //we should google-translate it (unless the google translation is already cached)
   this.autorun(() => {
     const fromLanguageData = session.getLanguageData(data.owner, data.repo, data.fromLanguageCode)
-    console.log("fromLanguageData", fromLanguageData)
     if (fromLanguageData) {
       triggerGoogleTranslationIfNeeded(data.owner, data.repo, fromLanguageData, data.toLanguageCode)
     }
@@ -82,6 +82,13 @@ Template.translate.helpers({
     }
   },
 
+  /*
+   {fileName: ...., fileContent: ....}
+   */
+  translationDoc() {
+    return getLanguageFileData(this.owner, this.repo, this.fromLanguageCode, this.toLanguageCode)
+  },
+
   borderClass() {
     //TODO
   },
@@ -97,14 +104,11 @@ Template.translate.helpers({
     const key = this
     const data = Template.parentData()
     const toLanguageCode = data.toLanguageCode
-    console.log("toLanguageText " + toLanguageCode + " " + key)
     const editedText = session.getEditedText(data.owner, data.repo, toLanguageCode, key)
     if (editedText != null && editedText != undefined) {
-      console.log("...found edited text: " + editedText)
       return editedText
     } else {
       const gitHubText = session.getLanguageText(data.owner, data.repo, toLanguageCode, key)
-      console.log("...no edited text. GitHub text: " + gitHubText)
       return gitHubText
     }
   },

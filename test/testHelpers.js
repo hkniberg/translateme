@@ -40,8 +40,10 @@ export function testFileParsing(pluginName) {
     const languageTextsAfter = plugin.convertFileContentsToLanguageTexts(testFile, testFileContentsAfter)
 
     //And then compare the language texts before and after.
-    //Should be exactly the same!
+    //Should be exactly the same, even when stringified!
+
     expect(languageTexts).to.deep.equal(languageTextsAfter)
+    expect(JSON.stringify(languageTexts)).to.equal(JSON.stringify(languageTextsAfter))
   })
 }
 

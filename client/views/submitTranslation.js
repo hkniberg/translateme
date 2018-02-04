@@ -111,7 +111,7 @@ function submit() {
 
   const fromLanguageData = session.getLanguageData(data.owner, data.repo, data.fromLanguageCode)
 
-  const mergedTranslation = session.getMergedTexts(data.owner, data.repo, data.toLanguageCode)
+  const mergedTranslation = session.getMergedTexts(data.owner, data.repo, data.fromLanguageCode, data.toLanguageCode)
 
   const params = {
     owner: data.owner,
