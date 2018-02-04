@@ -6,23 +6,10 @@
 
 <template name="layout">
     <div class="container-fluid">
-        <div class="topBar">
-            <div class="topBarTitle">
-                <a href="/">TranslateMe (Beta)</a>
-            </div>
-            <div class="topBarLink">
-                <a href="/plugins">supported language formats</a>
-            </div>
-            <div class="topBarLink">
-                <a href="/https://github.com/hkniberg/translateme" target="github">source</a>
-            </div>
-            <div class="topBarLink">
-                <a href="https://github.com/hkniberg/translateme/issues" target="github">feedback</a>
-            </div>
+        {{> nav}}
 
-            {{> gitHubStatus}}
+        <div class="mainContainer">
+            {{> yield}}
         </div>
-
-        {{> yield}}
     </div>
 </template>

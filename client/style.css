@@ -1,4 +1,23 @@
-/* CSS declarations go here */
+
+body {
+    background-image: url("image/tiles.jpg");
+    background-repeat: repeat;
+}
+
+
+
+.navbar-brand {
+    font-size: x-large;
+}
+
+.mainContainer {
+    background-color: white;
+    padding: 10px;
+    margin-top: 10px;
+    border-radius: 10px;
+}
+
+
 .translationPreview {
     white-space: pre;
     background-color: #fef5d5;
@@ -12,33 +31,6 @@
 
 .commentInput {
     width: 100%;
-}
-
-.topBar {
-    background-color: #dcdcdc;
-    border-radius: 10px;
-    padding: 5px;
-    margin-top: 5px;
-}
-
-.topBarTitle {
-    font-size: x-large;
-    display: inline-block;
-    vertical-align: middle;
-
-}
-
-.topBarLink {
-    font-size: small;
-    display: inline-block;
-    margin-left: 10px;
-    vertical-align: middle;
-}
-
-.gitHubStatus {
-    display: inline-block;
-    float: right;
-    vertical-align: middle;
 }
 
 .translateButton {

@@ -1,12 +1,12 @@
 <template name="gitHubStatus">
-    <div class="gitHubStatus">GitHub status:
-    {{#if gitHubAccessToken}}
-        <span class="text-success">Signed in!
-            <!--Token: {{gitHubAccessToken}}--> </span>
-    {{else}}
-        <span class="text-danger">Not signed in!</span>
-        <span><button class="btn btn-primary btn-sm signIn">Sign in</button></span>
-    {{/if}}
+    <div class="gitHubStatus">
+        GitHub status:
+        {{#if gitHubAccessToken}}
+            <span class="text-success">Signed in!</span>
+        {{else}}
+            <span class="text-danger">Not signed in!</span>
+            <span><button class="btn btn-primary btn-sm signIn">Sign in</button></span>
+        {{/if}}
     </div>
 
 
