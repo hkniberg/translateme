@@ -1,23 +1,28 @@
 import {parseGitUrl} from "../../lib/util";
 import {getGitHubAccessToken} from "../authentication";
-import {setError} from "../helpers";
-import {clearError} from "../helpers";
+import {session} from "../session";
 
 const checkingVar = new ReactiveVar(false)
 const repoNotFoundVar = new ReactiveVar(false)
-const languageInfoVar = new ReactiveVar()
+const languageDataVar = new ReactiveVar()
+const cantFindWorkingPluginVar = new ReactiveVar()
 
-function getTranslationUrl() {
-  const url = $(".projectUrl").val()
-  const parsedUrl = parseGitUrl(url)
-  const relativeUrl = "languages/" + parsedUrl.owner + "/" + parsedUrl.repo + "?baseLanguagePath=" + encodeURIComponent(parsedUrl.path)
-  return Meteor.absoluteUrl(relativeUrl)
-  
-}
+
+Template.createButton.onRendered(function() {
+  session.clearError("createButton")
+})
 
 Template.createButton.helpers({
+  repoNotFound() {
+    return repoNotFoundVar.get()
+  },
+
+  cantFindWorkingPlugin() {
+    return cantFindWorkingPluginVar.get()
+  },
+
   translationUrl() {
-    if (!languageInfoVar.get()) {
+    if (!languageDataVar.get()) {
       return
     }
     return getTranslationUrl()
@@ -36,42 +41,65 @@ Template.createButton.helpers({
   },
   
   languageInfo() {
-    return languageInfoVar.get()
+    return languageDataVar.get()
   }
 })
 
 Template.createButton.events({
   "click .createButtonButton"() {
-    clearError("createButton")
+    session.clearError("createButton")
     const url = $(".projectUrl").val()
     const parsedUrl = parseGitUrl(url)
     if (!parsedUrl) {
-      setError("createButton", "Er, darn I couldn't parse that GitHub URL")
+      session.setError("createButton", "Er, darn I couldn't parse that GitHub URL")
       return
     }
     const owner = parsedUrl.owner
     const repo = parsedUrl.repo
     const path = parsedUrl.path
+    if (!path) {
+      session.setError("createButton", "Your GitHub URL needs to point all the way to a specific file")
+      return
+    }
 
+    console.log("path", path)
 
     checkingVar.set(true)
     repoNotFoundVar.set(false)
-    languageInfoVar.set(null)
-    console.log("Calling getLanguageInfo")
-    Meteor.call("getLanguageInfo", owner, repo, path, getGitHubAccessToken(), function(err, languageInfo) {
-      console.log("Got", err, languageInfo)
+    cantFindWorkingPluginVar.set(false)
+    languageDataVar.set(null)
+    
+    Meteor.call("getLanguageDataFromPath", {owner, repo, path, gitHubAccessToken: getGitHubAccessToken()}, function(err, languageData) {
+      console.log("Got", err, languageData)
       checkingVar.set(false)
       if (err) {
         if (err.error == "notFound") {
           repoNotFoundVar.set(true)
+          //session.setError("createButton", "Repo not found", err)
+        } else if (err.error = "cantFindWorkingPlugin") {
+          cantFindWorkingPluginVar.set(true)
+          session.setError("createButton", "Can't find working plugin", err)
         } else {
-          setError("createButton", "isLanguageFileValid failed", err)
+          session.setError("createButton", "isLanguageFileValid failed", err)
         }
         return
       }
-      languageInfoVar.set(languageInfo)
+      languageDataVar.set(languageData)
     })
     
     
   }
 })
+
+
+
+function getTranslationUrl() {
+  const url = $(".projectUrl").val()
+  const parsedUrl = parseGitUrl(url)
+  const relativeUrl = "languages/" + parsedUrl.owner + "/" + parsedUrl.repo + "?baseLanguagePath=" + encodeURIComponent(parsedUrl.path)
+  return Meteor.absoluteUrl(relativeUrl)
+
+  cantFindWorkingPluginVar.set(false)
+  repoNotFoundVar.set(false)
+
+}

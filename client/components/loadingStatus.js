@@ -2,30 +2,36 @@ import {getGitHubAccessToken} from "../authentication";
 import {session} from "../session"
 
 /*
-
+  
  */
 Template.loadingStatus.onRendered(function() {
-  const data = Template.parentData()
+  console.log("\n\n===================================loadingStatus onRendered", Template.currentData())
+  
+  const data = Template.currentData()
   check(data.owner, String)
   check(data.repo, String)
   check(data.baseLanguagePath, Match.Maybe(String))
+  check(data.languageCodes, Match.Maybe([String]))
 
   session.clearError("loadingStatus")
-  loadLanguageDataIfMissing(data.owner, data.repo, data.baseLanguagePath)
+
+
+  loadLanguageDataIfMissing(data)
 })
 
 
-function loadLanguageDataIfMissing(owner, repo, baseLanguagePath) {
+function loadLanguageDataIfMissing({owner, repo, baseLanguagePath, languageCodes}) {
   const gitHubAccessToken = getGitHubAccessToken()
 
-  if (!session.hasLanguageDatas(owner, repo)) {
+  console.log("Calling session.hasLanguageDatas", owner, repo, languageCodes)
+  if (!session.hasLanguageDatas(owner, repo, languageCodes)) {
+    console.log("Some languageDatas are not loaded! Let's load them now.")
     //Load all language datas for this project
     //and store in the session
-    session.setLoadingLanguageData(true)
     session.setRepoNotFound(false)
-
-    Meteor.call("getAllLanguageDatasForProject", {owner, repo, baseLanguagePath, gitHubAccessToken}, function(err, languageDatas) {
-      console.log("getAllLanguageDatasForProject", languageDatas)
+    session.setLoadingLanguageData(true)
+    Meteor.call("getLanguageDatas", {owner, repo, baseLanguagePath, languageCodes, gitHubAccessToken}, function(err, languageDatas) {
+      console.log("getLanguageDatas", languageDatas)
       session.setLoadingLanguageData(false)
 
       if (err) {
@@ -33,7 +39,7 @@ function loadLanguageDataIfMissing(owner, repo, baseLanguagePath) {
         if (err.error == "notFound") {
           session.setRepoNotFound(true)
         } else {
-          session.setError("loadingStatus", "getAllLanguageDatasForProject failed", err)
+          session.setError("loadingStatus", "getLanguageDatas failed", err)
         }
         return
       }
@@ -45,5 +51,7 @@ function loadLanguageDataIfMissing(owner, repo, baseLanguagePath) {
         session.setLanguageDatas(owner, repo, languageDatas)
       }
     })
+  } else {
+    console.log("All language datas are loaded!")
   }
 }

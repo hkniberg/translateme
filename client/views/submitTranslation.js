@@ -27,6 +27,10 @@ Template.submitTranslation.onRendered(function() {
 
 
 Template.submitTranslation.helpers({
+  languageCodesToLoad() {
+    return [this.fromLanguageCode, this.toLanguageCode]
+  },
+  
   submitting() {
     return submittingVar.get()
   },
@@ -44,6 +48,12 @@ Template.submitTranslation.helpers({
   pullRequestUrl() {
     if (resultVar.get()) {
       return resultVar.get().pullRequestUrl
+    }
+  },
+
+  reviewUrl() {
+    if (resultVar.get()) {
+      return resultVar.get().reviewUrl
     }
   },
 

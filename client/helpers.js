@@ -14,6 +14,8 @@ Template.registerHelper('repo', function() {
 
 Template.registerHelper('languageDatas', function() {
   const data = Template.currentData()
+  console.log("template", Template.instance().view.name)
+  console.log("data", data)
   return session.getLanguageDatas(data.owner, data.repo)
 })
 

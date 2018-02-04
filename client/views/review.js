@@ -1,9 +1,9 @@
 import {setError} from "../helpers";
 import {getCachedGoogleTranslation} from "../googleTranslationCache";
 import {triggerGoogleTranslationIfNeeded} from "../helpers";
-import {getLanguageFileData} from "../helpers";
 import {getPluginByName} from "../../lib/initPlugins";
 import {getGitHubAccessToken} from "../authentication";
+import {session} from "../session"
 
 const loadingVar = new ReactiveVar(true)
 const repoNotFoundVar = new ReactiveVar(false)
@@ -19,19 +19,34 @@ Template.review.onRendered(function() {
   console.assert(data.fromPath, "missing fromPath")
   console.assert(data.toPath, "missing toPath")
   console.assert(data.fileFormat, "missing fileFormat")
-  console.log("data", data)
+  console.log("review data", data)
+
+  session.clearError("review")
 
   loadingVar.set(true)
   repoNotFoundVar.set(false)
 
+  fromLanguageDataVar.set(null)
+  toLanguageDataVar.set(null)
+
   console.log("Calling getReviewData")
-  Meteor.call("getReviewData", data.fromOwner, data.toOwner, data.repo, data.fromPath, data.toPath, data.fileFormat, getGitHubAccessToken(), function(err, languageDatas) {
+  
+  const params = {
+    fromOwner: data.fromOwner,
+    toOwner: data.toOwner,
+    repo: data.repo,
+    fromPath: data.fromPath,
+    toPath: data.toPath,
+    fileFormat: data.fileFormat,
+    gitHubAccessToken: getGitHubAccessToken()
+  }
+  Meteor.call("getReviewData", params, function(err, languageDatas) {
     loadingVar.set(false)
     if (err) {
       if (err.error == "notFound") {
         repoNotFoundVar.set(true)
       } else {
-        setError("review", "getReviewData failed", err)      
+        session.setError("review", "getReviewData failed", err)
       }
       return
     }
@@ -44,8 +59,16 @@ Template.review.onRendered(function() {
 })
 
 Template.review.helpers({
+  languageCodesToLoad() {
+    return [this.fromLanguageCode, this.toLanguageCode]
+  },  
+  
   loading() {
     return loadingVar.get()
+  },
+
+  sameOwner() {
+    return this.fromOwner == this.toOwner
   },
 
   repo() {
@@ -54,6 +77,14 @@ Template.review.helpers({
   
   repoNotFound() {
     return repoNotFoundVar.get()
+  },
+
+  fromLanguageCode() {
+    return fromLanguageDataVar.get().languageCode
+  },
+
+  toLanguageCode() {
+    return toLanguageDataVar.get().languageCode
   },
 
   fromLanguageName() {

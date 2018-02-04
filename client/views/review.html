@@ -1,9 +1,6 @@
 <template name="review">
     {{> error "review"}}
 
-
-
-
     {{#if loading}}
         <h1>Review translation</h1>
         <div>Loading stuff from github...</div>
@@ -22,6 +19,15 @@
             <h1>Review translation from {{fromLanguageName}} to {{toLanguageName}}</h1>
 
             <p>Check that the second and third columns contain roughly the same text.</p>
+
+            <div class="alert alert-warning">Note - if the submitted translation below seems to be old,
+            then that's because there is sometimes a delay before github shows the latest version.
+                If so just wait a couple of minutes and then reload this page.
+            </div>
+
+            {{#if sameOwner}}
+                <a href="/translate/{{toOwner}}/{{repo}}/{{fromLanguageCode}}/{{toLanguageCode}}">Edit the translation</a>
+            {{/if}}
 
             <div class="row">
                 <div class="col col-xs-4">

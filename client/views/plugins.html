@@ -1,0 +1,27 @@
+<template name="plugins">
+    <h1>Currently supported language formats</h1>
+
+    <p>TranslateMe has a plugin architecture that makes it easy to add support for new types of repos
+    and language file formats.</p>
+
+    <p>Here's instructions on <a href="https://github.com/hkniberg/translateme/blob/master/plugins.md">how to contribute new plugins</a>.
+        You can see the source code for each plugin below.
+    </p>
+
+{{#each plugins}}
+    <div class="pluginTile">
+        <div class="pluginName">{{name}}</div>
+        <div class="pluginDescription">{{description}}</div>
+        {{#if infoUrl}}
+            <div class="pluginLink" ><a href="{{infoUrl}}" target="pluginDetails">Details</a></div>
+        {{/if}}
+        {{#if exampleUrl}}
+            <div class="pluginLink" ><a href="{{exampleUrl}}" target="pluginDetails">Example</a></div>
+        {{/if}}
+        {{#if sourceUrl}}
+            <div class="pluginLink" ><a href="{{sourceUrl}}" target="pluginDetails">Source code</a></div>
+        {{/if}}
+    </div>
+{{/each}}
+
+</template>

@@ -1,6 +1,14 @@
 <template name="createButton">
     <h1>Create button</h1>
 
+    {{#if repoNotFound}}
+        <div class="alert alert-warning">
+            <h2 style="margin-top: 0px">This project might be private</h2>
+            <p>Either the project doesn't exist, or the project is non-public and you need to sign in.</p>
+            <div>{{> gitHubSignInButton}}</div>
+        </div>
+    {{/if}}
+
     <p>Wouldn't it be great if people could easily translate your github project?</p>
 
     <p>Here's how to embed a Translate Me button or link on your site:</p>
@@ -29,8 +37,8 @@
 
     {{#if translationUrl}}
         <h3>Ok, here is your button</h3>
-        <p>Base language: {{languageInfo.languageName}}</p>
         <div class="translateButton"><a href="{{translationUrl}}" target="translateButton">Translate Me</a></div>
+        <p>Yeah it's ugly, but you can easily change the design yourself to match your site </p>
 
         <h3>And here is the html code to embed this button on your site:</h3>
         <div class="translateButtonSource">

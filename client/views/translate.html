@@ -1,11 +1,25 @@
 <template name="translate">
     <h1>Translate from {{fromLanguageName}} to {{toLanguageName}}</h1>
     {{> error "translate"}}
-    {{> loadingStatus}}
+    {{> loadingStatus owner=owner repo=repo baseLanguagePath=baseLanguagePath languageCodes=languageCodesToLoad}}
+
 
     {{#if textKeys}}
-        <p>OK go ahead and translate each section of text below.</p>
-        <p>You can use the google translation column for reference.</p>
+
+        <div class="row">
+            <div class="col-xs-6">
+                <p>OK go ahead and translate each section of text below.</p>
+                <p>You can use the google translation column for reference.</p>
+            </div>
+            {{#if manyTexts}}
+                <div class="col-xs-6">
+                    <div class="well">
+                        <div><button class="btn btn-link downloadButton">Download translation as file</button></div>
+                        <div><button class="btn btn-success submitButton">Submit translation</button></div>
+                    </div>
+                </div>
+            {{/if}}
+        </div>
 
         <div class="row">
             <div class="col col-xs-4">
@@ -54,8 +68,8 @@
                 </div>
             </div>
         {{/each}}
-        <div><button class="btn btn-link downloadButton">Download translation as file</button></div>
 
+        <div><button class="btn btn-link downloadButton">Download translation as file</button></div>
         <div><button class="btn btn-success btn-lg submitButton">Submit translation</button></div>
     {{/if}}
 

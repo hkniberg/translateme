@@ -39,7 +39,16 @@ Template.translate.onRendered(function() {
 })
 
 Template.translate.helpers({
+  languageCodesToLoad() {
+    return [this.fromLanguageCode, this.toLanguageCode]
+  },
 
+  manyTexts() {
+    const keys = getTextKeys(this.owner, this.repo, this.fromLanguageCode)
+    return keys && keys.length > 10
+  },
+  
+  
   textKeys() {
     return getTextKeys(this.owner, this.repo, this.fromLanguageCode)
   },
@@ -135,7 +144,7 @@ Template.translate.events({
   },
 
   "click .downloadButton"(event) {
-    downloadLanguageFile(this.owner, this.repo, this.toLanguageCode)
+    downloadLanguageFile(this.owner, this.repo, this.fromLanguageCode, this.toLanguageCode)
   },
 
   "click .submitButton"(event) {

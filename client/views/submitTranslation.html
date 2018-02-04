@@ -1,7 +1,7 @@
 <template name="submitTranslation">
     <h1>Submit your translation</h1>
 
-    {{> loadingStatus}}
+    {{> loadingStatus owner=owner repo=repo baseLanguagePath=baseLanguagePath languageCodes=languageCodesToLoad}}
 
     {{#if translationDoc}}
         <div class="row">
@@ -9,6 +9,8 @@
 
                 {{#if submitting}}
                     <div>Doing some github voodoo...</div>
+                    <iframe src="https://giphy.com/embed/26u4ms6oHTYlBF1kY" width="240" height="240" frameBorder="0" class="giphy-embed" allowFullScreen></iframe>
+                    <p class="small"><a href="https://giphy.com/gifs/dance-swag-420-26u4ms6oHTYlBF1kY">via GIPHY</a></p>
                     {{> spinner}}
                 {{else}}
                     {{#unless result}}
@@ -57,15 +59,18 @@
 
                 {{#if result}}
                     <div class="alert alert-success">
-                        <b>Done!</b><br>
-                        Your translation has been sent.<br>
+                        <h2 style="margin-top: 0px;">Done!</h2>
+
+                        <p>Your translation has been submitted.</p>
                         {{#if pullRequestUrl}}
                             <p><a href="{{pullRequestUrl}}" target="github">Here is what the owner received</a></p>
                         {{else}}
                             {{#if commitUrl}}
-                                <p>Here is a <a href="{{commitUrl}}" target="github">Link to your commit</a> if you are curious.</p>
+                                <p>Here is a <a href="{{commitUrl}}" target="github">link to your commit</a> if you are curious.</p>
                             {{/if}}
                         {{/if}}
+                        <p>It includes a link to <a href="{{reviewUrl}}" target="review">review the translation</a>.</p>
+
                     </div>
 
                     <a class="btn btn-link" role="button" data-toggle="collapse" href="#goryDetails" aria-expanded="false" aria-controls="goryDetails">

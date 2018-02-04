@@ -113,8 +113,23 @@ export const session = {
     }
   },
 
-  hasLanguageDatas(owner, repo) {
-    return this.getLanguageDatas(owner, repo).length > 0    
+  /**
+   * Checks if we have data for the given language codes.
+   * If no specific language codes were given, we'll check if we have
+   * data for any language codes.
+   */
+  hasLanguageDatas(owner, repo, languageCodes) {
+    check(owner, String)
+    check(repo, String)
+    check(languageCodes, Match.Maybe([String]))
+
+    if (languageCodes) {
+      return languageCodes.every((languageCode) => {
+        return this.hasLanguageData(owner, repo, languageCode)
+      })
+    } else {
+      this.getLanguageDatas(owner, repo).length > 0
+    }
   },
   
   // always returns an array
@@ -140,6 +155,10 @@ export const session = {
     } else {
       return []
     }
+  },
+
+  hasLanguageData(owner, repo, languageCode) {
+    return !!this.getLanguageData(owner, repo, languageCode)
   },
 
   getLanguageData(owner, repo, languageCode) {

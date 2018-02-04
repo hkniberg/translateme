@@ -164,6 +164,17 @@ function startTranslating() {
   const fromLanguageCode = getFromLanguageCode(data)
   const toLanguageCode = toLanguageCodeVar.get()
   if (fromLanguageCode && toLanguageCode) {
+    if (!session.hasLanguageData(data.owner, data.repo, toLanguageCode)) {
+      //This is a new language. Let's put an empty LanguageData in the session.
+      const toLanguageData = {
+        languageCode: toLanguageCode,
+        languageName: getLanguageName(toLanguageCode),
+        texts: [],
+        textCount: 0
+      }
+      session.setLanguageData(data.owner, data.repo, toLanguageCode, toLanguageData)
+    }
+
     Router.go('translate', {
       owner: data.owner,
       repo: data.repo,
