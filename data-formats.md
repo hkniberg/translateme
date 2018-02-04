@@ -1,21 +1,24 @@
-Language info:
+Language data:
 
     {
       languageCode: en,
       languageName: 'English'
       path: "i18n/en.i18n.json",
       fileFormat: "meteorTap",
-      date: 2017-12-15T12:30:00,
-      textCount: 5
+      modifiedDate: "2017-12-15T12:30:00",
+      createdDate: "2017-10-15T12:30:00",
+      textCount: 5,
+      texts: {
+        welcome: "Välkommen",
+        details: "Hur koolt som helst"
+      }
     }
 
-Language data is same as LanguageInfo, plus texts:
+Language edit:
 
     {
-       ...languageInfo fields...
-       texts: {
-         welcome: "Välkommen",
-         details: "Hur koolt som helst"
-       }
-     }
-
+      languageCode: en,
+      texts: {
+        welcome: "Välkommen",
+      }
+    }

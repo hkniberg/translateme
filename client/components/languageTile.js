@@ -1,4 +1,8 @@
 Template.languageTile.onRendered(function() {
+  const data = Template.currentData()
+  check(data.languageData, Object)
+  check(data.maxTextCount, Number)
+
   $('.progress .progress-bar').progressbar({
     display_text: 'center',
     use_percentage: false,
@@ -8,9 +12,9 @@ Template.languageTile.onRendered(function() {
 
 Template.languageTile.helpers({
   dangerOrSuccess() {
-    const languageInfo = this.languageInfo
+    const languageData = this.languageData
     const maxTextCount = this.maxTextCount
-    if (languageInfo.textCount >= maxTextCount) {
+    if (languageData.textCount >= maxTextCount) {
       return "success"
     } else {
       return "danger"

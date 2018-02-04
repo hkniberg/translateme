@@ -1,0 +1,22 @@
+<template name="loadingStatus">
+    {{> error "loadingStatus"}}
+
+    {{#if loadingLanguageData}}
+        <p>Loading language files from github...</p>
+        {{> spinner}}
+    {{else}}
+        {{#if repoNotFound}}
+            <h1>This project might be private</h1>
+
+            <p>Either the project doesn't exist, or the project is non-public and you need to sign in.</p>
+            <div>{{> gitHubSignInButton}}</div>
+            <div><a href="/selectProjectToTranslate">Select another project</a></div>
+        {{else}}
+            {{#unless languageDatas.length}}
+                <p>Darn! I can't find any recognizable language files in this project.</p>
+            {{/unless}}
+        {{/if}}
+
+
+    {{/if}}
+</template>

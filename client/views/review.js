@@ -1,8 +1,9 @@
 import {setError} from "../helpers";
 import {getCachedGoogleTranslation} from "../googleTranslationCache";
-import {triggerGoogleTranslation} from "../helpers";
+import {triggerGoogleTranslationIfNeeded} from "../helpers";
 import {getLanguageFileData} from "../helpers";
 import {getPluginByName} from "../../lib/initPlugins";
+import {getGitHubAccessToken} from "../authentication";
 
 const loadingVar = new ReactiveVar(true)
 const repoNotFoundVar = new ReactiveVar(false)
@@ -18,11 +19,13 @@ Template.review.onRendered(function() {
   console.assert(data.fromPath, "missing fromPath")
   console.assert(data.toPath, "missing toPath")
   console.assert(data.fileFormat, "missing fileFormat")
+  console.log("data", data)
 
   loadingVar.set(true)
   repoNotFoundVar.set(false)
 
-  Meteor.call("getReviewData", data.fromOwner, data.toOwner, data.repo, data.fromPath, data.toPath, data.fileFormat, data.gitHubAccessToken, function(err, languageDatas) {
+  console.log("Calling getReviewData")
+  Meteor.call("getReviewData", data.fromOwner, data.toOwner, data.repo, data.fromPath, data.toPath, data.fileFormat, getGitHubAccessToken(), function(err, languageDatas) {
     loadingVar.set(false)
     if (err) {
       if (err.error == "notFound") {
@@ -36,13 +39,17 @@ Template.review.onRendered(function() {
     fromLanguageDataVar.set(languageDatas.fromLanguage)
     toLanguageDataVar.set(languageDatas.toLanguage)
 
-    triggerGoogleTranslation(data.toOwner, data.repo, languageDatas.toLanguage, languageDatas.fromLanguage.languageCode)
+    triggerGoogleTranslationIfNeeded(data.toOwner, data.repo, languageDatas.toLanguage, languageDatas.fromLanguage.languageCode)
   })
 })
 
 Template.review.helpers({
   loading() {
     return loadingVar.get()
+  },
+
+  repo() {
+    return Template.currentData().repo
   },
   
   repoNotFound() {

@@ -1,102 +1,59 @@
 <template name="languages">
     {{> error "languages"}}
 
-    {{#if loading}}
-        {{> spinner}}
-    {{else}}
-        {{#if repoNotFound}}
-            <h1>This project might be private</h1>
+    <h1>Translate {{repo}}</h1>
 
-            <p>Either the project doesn't exist, or the project is non-public and you need to sign in.</p>
-            <div><button class="btn btn-primary gitHubSignInButton">Sign in to GitHub</button></div>
-            <div><a href="/selectProjectToTranslate">Select another project</a></div>
+    {{> loadingStatus}}
+
+
+    {{#if languageDatas.length}}
+        {{#if showForm}}
+
+            Translate from
+            {{#if baseLanguageName}}
+                {{baseLanguageName}}
+            {{else}}
+                <select class="fromLanguageCode">
+                    {{#each languageDatas}}
+                        <option value="{{languageCode}}" {{fromLanguageSelected}}>{{languageName}}</option>
+                    {{/each}}
+                </select>
+            {{/if}}
+
+            to
+            <select class="toLanguageCode">
+                {{#each toLanguageDatas}}
+                    <option value="{{languageCode}}" {{toLanguageSelected}}>{{languageName}}</option>
+                {{/each}}
+            </select>
+
+
+            <div><button class="btn btn-primary btn-space createNewTranslationButton" {{createNewTranslationButtonDisabled}}>
+                {{#if editingExistingTranslation}}
+                    Edit {{toLanguageName}} translation
+                {{else}}
+                    Start translating
+                {{/if}}
+
+            </button></div>
+            <div><button class="btn btn-link languageOverviewButton">Back to language overview</button></div>
 
         {{/if}}
 
-        {{#unless repoNotFound}}
-            <h1>Translate {{projectName}}</h1>
 
-            {{#if projectLanguages}}
-                <p>This project is currently available in {{projectLanguagesAsSentence}}.</p>
+        {{#unless showForm}}
 
-                {{#if loadingTexts}}
-                    <p>Loading stuff from github...</p>
-                    {{> spinner}}
-                {{else}}
-
-                    Translate from
-                    {{#if baseLanguageName}}
-                        {{baseLanguageName}}
-                    {{else}}
-                        <select class="createFromLanguageCode">
-                            {{#each projectLanguages}}
-                                <option value="{{languageCode}}">{{languageName}}</option>
-                            {{/each}}
-                        </select>
-                    {{/if}}
-                    to
-                    <select class="createToLanguageCode">
-                        {{#each allLanguagesExceptProjectLanguages}}
-                            <option value="{{languageCode}}">{{languageName}}</option>
-                        {{/each}}
-                    </select>
-                    <div><button class="btn btn-primary btn-space createButton">Start translating</button></div>
-
-                    {{#if parseError}}
-
-                        <div class="alert alert-danger">
-                            <h3>Oh no, the {{parseErrorLanguageInfo.languageName}} language file doesn't look right</h3>
-                            <p>
-                                I was unable to parse
-                                <a href="{{parseErrorLanguageInfo.downloadUrl}}">{{parseErrorLanguageInfo.path}}</a>
-                            </p>
-                            <p>
-                            {{parseError}}
-                            </p>
-                        </div>
-
-                    {{/if}}
-
-
-
-
-                    <!--
-                    {{#if hasMoreThanOneLanguage}}
-
-                        <h2>Update an existing translation</h2>
-
-                        Update the translation from
-                        <select class="updateFromLanguageCode">
-                            {{#each projectLanguages}}
-                                <option value="{{languageCode}}">{{languageName}}</option>
-                            {{/each}}
-                        </select>
-                        to
-                        <select class="updateToLanguageCode">
-                            {{#each projectLanguagesExceptBase}}
-                                <option value="{{languageCode}}">{{languageName}}</option>
-                            {{/each}}
-                        </select>
-                        <div><button class="btn btn-primary updateButton">Update the translation</button></div>
-                    {{/if}}
-                -->
-
-                {{/if}}
-
-            {{/if}}
-
-
-
-            <h2>Current languages</h2>
-            <div class="alert alert-warning">
-                Work in progress. Soon you'll be able to click on a language below to edit it.
-                For now you can only add new languages above.
+            <p>Click below to create or update a translation</p>
+            <div class="newLanguageTile">
+                <div class="languageName">New language</div>
+                <div class="alert alert-success">Click here to create a new translation</div>
             </div>
-            {{#each projectLanguages}}
+
+            {{#each languageDatas}}
                 {{> languageTile languageTileData}}
             {{/each}}
         {{/unless}}
-    {{/if}}
 
+    {{/if}}
 
 </template>

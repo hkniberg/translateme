@@ -1,60 +1,64 @@
 <template name="translate">
     <h1>Translate from {{fromLanguageName}} to {{toLanguageName}}</h1>
     {{> error "translate"}}
+    {{> loadingStatus}}
 
+    {{#if textKeys}}
+        <p>OK go ahead and translate each section of text below.</p>
+        <p>You can use the google translation column for reference.</p>
 
-    <p>OK go ahead and translate each section of text below.</p>
-    <p>You can use the google translation column for reference.</p>
-
-    <div class="row">
-        <div class="col col-xs-4">
-            <h3>{{fromLanguageName}} text</h3>
-        </div>
-        <div class="col col-xs-4">
-            <h3>{{toLanguageName}} translation</h3>
-            <div>{{> translationProgress this}}</div>
-
-        </div>
-        <div class="col col-xs-4">
-            <h3>Google translation</h3> (if available)
-        </div>
-    </div>
-
-    {{#each textKeys}}
         <div class="row">
             <div class="col col-xs-4">
-                <div class="well well-sm">
-                    <div class="translationText">{{fromLanguageText}}</div>
-                </div>
+                <h3>{{fromLanguageName}} text</h3>
             </div>
             <div class="col col-xs-4">
-                <div class="{{maybeRightToLeft}}">
+                <h3>{{toLanguageName}} translation</h3>
+                <div>{{> translationProgress this}}</div>
+
+            </div>
+            <div class="col col-xs-4">
+                <h3>Google translation</h3> (if available)
+            </div>
+        </div>
+
+        {{#each textKeys}}
+            <div class="row">
+                <div class="col col-xs-4">
+                    <div class="well well-sm">
+                        <div class="translationText">{{fromLanguageText}}</div>
+                    </div>
+                </div>
+                <div class="col col-xs-4">
+                    <div class="{{maybeRightToLeft}}">
                     <textarea
-                            rows="{{rowsToUseForTranslatedText}}"
+                            rows="{{rowCountToUseForTranslatedText}}"
                             class="translationTextArea {{borderClass}}"
                             data-key="{{this}}"
                             placeholder="Type your translation here, or leave it blank to use the {{fromLanguageName}} text...">{{toLanguageText}}</textarea>
+                    </div>
+                </div>
+                <div class="col col-xs-4">
+                    {{#if googleTranslationText}}
+                        <div class="well well-sm">
+                            <div class="translationText {{maybeRightToLeft}}">{{googleTranslationText}}</div>
+                            {{#unless toLanguageText}}
+                                <div>
+                                    <button tabindex="-1" class="copyButton btn btn-default btn-sm" data-key="{{this}}">
+                                        <span class="glyphicon glyphicon-chevron-left"></span>
+                                        Copy
+                                    </button>
+                                </div>
+                            {{/unless}}
+                        </div>
+                    {{/if}}
                 </div>
             </div>
-            <div class="col col-xs-4">
-                {{#if googleTranslationText}}
-                    <div class="well well-sm">
-                        <div class="translationText {{maybeRightToLeft}}">{{googleTranslationText}}</div>
-                        {{#unless toLanguageText}}
-                            <div>
-                                <button tabindex="-1" class="copyButton btn btn-default btn-sm" data-key="{{this}}">
-                                    <span class="glyphicon glyphicon-chevron-left"></span>
-                                    Copy
-                                </button>
-                            </div>
-                        {{/unless}}
-                    </div>
-                {{/if}}
-            </div>
-        </div>
-    {{/each}}
-    <div><button class="btn btn-link downloadButton">Download translation as file</button></div>
+        {{/each}}
+        <div><button class="btn btn-link downloadButton">Download translation as file</button></div>
 
-    <div><button class="btn btn-success btn-lg submitButton">Submit translation</button></div>
+        <div><button class="btn btn-success btn-lg submitButton">Submit translation</button></div>
+    {{/if}}
+
+
 
 </template>

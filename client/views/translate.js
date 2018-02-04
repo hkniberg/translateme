@@ -1,17 +1,16 @@
 import {getLanguageName} from "../../lib/data/languages";
 import {getCachedGoogleTranslation} from "./../googleTranslationCache";
-import {setLanguageText} from "./../translationStatus";
-import {getLanguageText} from "./../translationStatus";
-import {getLanguageData} from "./../translationStatus";
 import {downloadLanguageFile} from "./../helpers";
+import {triggerGoogleTranslationIfNeeded} from "../helpers";
+import {session} from "../session"
+import {storage} from "../storage"
 
+const editedTextsVar = new ReactiveVar({})
 
-const loadingVar = new ReactiveVar(true)
 /*
 Expected data context:
   - owner
   - repo
-  - fromLanguageFile
   - fromLanguageCode
   - toLanguageCode
  */
@@ -21,6 +20,22 @@ Template.translate.onRendered(function() {
   console.assert(data.repo, "repo missing")
   console.assert(data.fromLanguageCode, "fromLanguageCode missing")
   console.assert(data.toLanguageCode, "toLanguageCode missing")
+
+
+  session.clearError("translate")
+
+  session.loadEditedTextsFromStorage(data.owner, data.repo, data.toLanguageCode)
+
+  //As soon as we get the languageData for the given fromLanguageCode,
+  //we should google-translate it (unless the google translation is already cached)
+  this.autorun(() => {
+    const fromLanguageData = session.getLanguageData(data.owner, data.repo, data.fromLanguageCode)
+    console.log("fromLanguageData", fromLanguageData)
+    if (fromLanguageData) {
+      triggerGoogleTranslationIfNeeded(data.owner, data.repo, fromLanguageData, data.toLanguageCode)
+    }
+  })
+
 })
 
 Template.translate.helpers({
@@ -46,11 +61,11 @@ Template.translate.helpers({
     //TODO
   },
 
-  rowsToUseForTranslatedText() {
+  rowCountToUseForTranslatedText() {
     const key = this
     const data = Template.parentData()
     const fromLanguageCode = data.fromLanguageCode
-    const fromLanguageText = getLanguageText(data.owner, data.repo, fromLanguageCode, key)
+    const fromLanguageText = session.getLanguageText(data.owner, data.repo, fromLanguageCode, key)
     if (fromLanguageText) {
       return Math.max(fromLanguageText.length / 20, 2)
     } else {
@@ -66,14 +81,23 @@ Template.translate.helpers({
     const key = this
     const data = Template.parentData()
     const fromLanguageCode = data.fromLanguageCode
-    return getLanguageText(data.owner, data.repo, fromLanguageCode, key)
+    return session.getLanguageText(data.owner, data.repo, fromLanguageCode, key)
   },
 
   toLanguageText() {
     const key = this
     const data = Template.parentData()
     const toLanguageCode = data.toLanguageCode
-    return getLanguageText(data.owner, data.repo, toLanguageCode, key)
+    console.log("toLanguageText " + toLanguageCode + " " + key)
+    const editedText = session.getEditedText(data.owner, data.repo, toLanguageCode, key)
+    if (editedText != null && editedText != undefined) {
+      console.log("...found edited text: " + editedText)
+      return editedText
+    } else {
+      const gitHubText = session.getLanguageText(data.owner, data.repo, toLanguageCode, key)
+      console.log("...no edited text. GitHub text: " + gitHubText)
+      return gitHubText
+    }
   },
 
   googleTranslationText() {
@@ -83,7 +107,6 @@ Template.translate.helpers({
     const toLanguageCode = data.toLanguageCode
     return getCachedGoogleTranslation(data.owner, data.repo, key, fromLanguageCode, toLanguageCode)
   }
-
 })
 
 Template.translate.events({
@@ -92,9 +115,9 @@ Template.translate.events({
     const toLanguageCode = data.toLanguageCode
     const textArea = event.target
     const key = $(textArea).data("key")
-    const translatedText = $(textArea).val()
+    const newText = $(textArea).val()
     
-    setLanguageText(data.owner, data.repo, toLanguageCode, key, translatedText)
+    session.setEditedText(data.owner, data.repo, toLanguageCode, key, newText)
   },
 
   "click .copyButton"(event) {
@@ -107,7 +130,7 @@ Template.translate.events({
 
     const googleTranslation = getCachedGoogleTranslation(data.owner, data.repo, key, fromLanguageCode, toLanguageCode)
     if (googleTranslation) {
-      setLanguageText(data.owner, data.repo, toLanguageCode, key, googleTranslation)
+      session.setEditedText(data.owner, data.repo, toLanguageCode, key, googleTranslation)
     }
   },
 
@@ -127,7 +150,9 @@ Template.translate.events({
 
 
 function getTextKeys(owner, repo, languageCode) {
-  const languageData = getLanguageData(owner, repo, languageCode)
-  return Object.getOwnPropertyNames(languageData.texts)
+  const languageData = session.getLanguageData(owner, repo, languageCode)
+  if (languageData) {
+    return Object.getOwnPropertyNames(languageData.texts)
+  }
 }
 

@@ -1,28 +1,37 @@
 import {Session} from "meteor/session"
-import {getLanguageName} from "../lib/data/languages";
-import {getLanguageData} from "./translationStatus";
 import {getPluginByName} from "../lib/initPlugins"
 import {cacheGoogleTranslation} from "./googleTranslationCache";
 import {getCachedGoogleTranslation} from "./googleTranslationCache";
+import {session} from "./session"
 
 Template.registerHelper('owner', function() {
-  return Session.get("owner")
+  return Template.currentData().owner
 })
 
 Template.registerHelper('repo', function() {
-  return Session.get("repo")
+  return Template.currentData().repo
 })
 
-Template.registerHelper('path', function() {
-  return Session.get("path")
+Template.registerHelper('languageDatas', function() {
+  const data = Template.currentData()
+  return session.getLanguageDatas(data.owner, data.repo)
 })
+
 
 Template.registerHelper('loading', function() {
   return isLoading()
 })
 
+Template.registerHelper('repoNotFound', function() {
+  return session.isRepoNotFound()
+})
+
+Template.registerHelper('loadingLanguageData', function() {
+  return session.isLoadingLanguageData()
+})
+
 Template.registerHelper('error', function(context) {
-  return getError(context)
+  return session.getError(context)
 })
 
 Template.registerHelper('formatDateHowLongAgo', function(date) {
@@ -37,44 +46,39 @@ export function setLoading(loading) {
   Session.set('loading', loading)
 }
 
-export function getError(context) {
-  return Session.get("error " + context)
-}
-
-export function setError(context, description, err) {
-  console.log("setError called", description, err)
-  if (err) {
-    if (err.reason) {
-      Session.set("error " + context, description + "\n" + err.reason)
-    } else {
-      Session.set("error " + context, description + "\n" + err)
-    }
-  } else {
-    Session.set("error " + context, description)
-  }
-}
-
-export function clearError(context) {
-  Session.set("error " + context, null)
-}
 
 /*
-return {fileName: xxx, fileContent: yyy} (both strings)
+return {fileName: xxx, fileContent: yyy} (both strings),
+or null if fromLanguageData has not yet been loaded in the session
  */
-export function getLanguageFileData(owner, repo, languageCode) {
-  const languageData = getLanguageData(owner, repo, languageCode)
-  const plugin = getPluginByName(languageData.fileFormat)
-  const fileName = plugin.getFileNameForLanguage(languageCode)
-  return {
-    fileName: fileName,
-    fileContent: plugin.convertLanguageTextsToFileContents(fileName, languageData.texts)
+export function getLanguageFileData(owner, repo, fromLanguageCode, toLanguageCode) {
+  console.log("getLanguageFileData", owner, repo, fromLanguageCode, toLanguageCode)
+  const mergedTexts = session.getMergedTexts(owner, repo, toLanguageCode)
+  console.log("editedTexts", mergedTexts)
+
+  const fromLanguageData = session.getLanguageData(owner, repo, fromLanguageCode)
+  if (fromLanguageData) {
+    const plugin = getPluginByName(fromLanguageData.fileFormat)
+    const fileName = plugin.getFileNameForLanguage(toLanguageCode)
+    return {
+      fileName: fileName,
+      fileContent: plugin.convertLanguageTextsToFileContents(fileName, mergedTexts)
+    }
+  } else {
+    return null
   }
+
 }
 
-export function downloadLanguageFile(owner, repo, languageCode) {
-  console.log("downloadLanguageFile", languageCode)
+export function downloadLanguageFile(owner, repo, fromLanguageCode, toLanguageCode) {
+  check(owner, String)
+  check(repo, String)
+  check(fromLanguageCode, String)
+  check(toLanguageCode, String)
 
-  const fileData = getLanguageFileData(owner, repo, languageCode)
+  console.log("downloadLanguageFile", fromLanguageCode, toLanguageCode)
+
+  const fileData = getLanguageFileData(owner, repo, fromLanguageCode, toLanguageCode)
 
   const href = 'data:application/json;charset=utf-8,'+ encodeURIComponent(fileData.fileContent);
   const linkElement = document.createElement('a');
@@ -83,7 +87,7 @@ export function downloadLanguageFile(owner, repo, languageCode) {
   linkElement.click();
 }
 
-export function triggerGoogleTranslation(owner, repo, fromLanguageData, toLanguageCode) {
+export function triggerGoogleTranslationIfNeeded(owner, repo, fromLanguageData, toLanguageCode) {
   console.assert(owner, "missing owner")
   console.assert(repo, "missing repo")
   console.assert(fromLanguageData, "missing fromLanguageData")
@@ -94,7 +98,9 @@ export function triggerGoogleTranslation(owner, repo, fromLanguageData, toLangua
   keys.forEach((key) => {
     const fromLanguageText = fromLanguageData.texts[key]
     if (!getCachedGoogleTranslation(owner, repo, key, fromLanguageCode, toLanguageCode)) {
+      console.log("Calling googleTranslate")
       Meteor.call('googleTranslate', fromLanguageText, fromLanguageCode, toLanguageCode, function(err, translatedText) {
+        console.log("result", err, translatedText)
         if (err || !translatedText) {
           translatedText = ""
         }

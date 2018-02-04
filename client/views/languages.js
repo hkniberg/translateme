@@ -1,60 +1,87 @@
-import {Session} from "meteor/session"
-import {setLoading} from "./../helpers";
-import {setError} from "./../helpers";
-import {clearError} from "./../helpers";
-import {getAllLanguages} from "../../lib/data/languages";
-import {getGitHubAccessToken} from "./../authentication";
-import {signInToGitHub} from "./../gitHubClientUtil";
-import {setLanguageData} from "./../translationStatus";
-import {loadLanguageDataFromLocalStorage} from "../translationStatus";
-import {triggerGoogleTranslation} from "../helpers";
 
-const languageInfosVar = new ReactiveVar()
+import {getGitHubAccessToken} from "./../authentication";
+import {setLanguageDataInSession} from "../session";
+import {loadLanguageDataFromLocalStorage} from "../session";
+import {triggerGoogleTranslationIfNeeded} from "../helpers";
+import {session} from "../session"
+import {getAllLanguages} from "../../lib/data/languages";
+import {getLanguageName} from "../../lib/data/languages";
+
+//TODO remove
+//const languageInfosVar = new ReactiveVar()
 
 const selectedLanguageCodeVar = new ReactiveVar()
 const repoNotFoundVar = new ReactiveVar()
-const parseErrorVar = new ReactiveVar()
-const loadingTextsVar = new ReactiveVar(false)
+const parseErrorVar = new ReactiveVar(false)
 const parseErrorLanguageInfoVar = new ReactiveVar(null)
 
+const showFormVar = new ReactiveVar(false)
+
+const fromLanguageCodeVar = new ReactiveVar()
+const toLanguageCodeVar = new ReactiveVar()
+
+/*
+Expects data:
+- owner
+- repo
+
+Optional data:
+- baseLanguagePath = the path to the locale file that we should use as fromLanguage
+ */
 Template.languages.onRendered(function() {
-  setLoading(true)
-  repoNotFoundVar.set(false)
-  parseErrorVar.set(false)
-  parseErrorLanguageInfoVar.set(null)
-  clearError("languages")
-
-  const data = Template.currentData()
-  
-  Meteor.call("getLanguageInfos", data.owner, data.repo, data.baseLanguagePath, getGitHubAccessToken(), function(err, languageInfos) {
-    console.log("getLanguageInfos", languageInfos)
-    setLoading(false)
-    if (err) {
-      console.log("Got error", err)
-      if (err.error == "notFound") {
-        repoNotFoundVar.set(true)
-      } else {
-        setError("languages", "getLanguageInfos failed", err)
-      }
-      return
-    }
-
-    languageInfos = languageInfos.sort((a, b) => {
-      return a.languageName > b.languageName
-    })
-
-    languageInfosVar.set(languageInfos)
-
-  })    
+  session.clearError("languages")
 })
 
 Template.languages.helpers({
-  loadingTexts() {
-    return loadingTextsVar.get()
+  languageTileData() {
+    const languageData = Template.currentData()
+    const data = Template.parentData()
+    const languageDatas = session.getLanguageDatas(data.owner, data.repo)
+    return {
+      languageData: languageData,
+      maxTextCount: getMaxTextCount(languageDatas)
+    }
   },
 
-  projectName() {
-    return this.repo
+  showForm() {
+    return showFormVar.get()
+  },
+
+  fromLanguageSelected() {
+    const languageData = this
+    const data = Template.parentData()
+    if (isSame(languageData.languageCode, getFromLanguageCode(data))) {
+      return "selected"
+    }
+  },
+
+  toLanguageSelected() {
+    const languageData = this
+    if (isSame(languageData.languageCode, toLanguageCodeVar.get())) {
+      return "selected"
+    }
+  },
+  
+  toLanguageCode() {
+    return toLanguageCodeVar.get()
+  },
+
+  toLanguageName() {
+    const toLanguageCode = toLanguageCodeVar.get()
+    if (toLanguageCode) {
+      return getLanguageName(toLanguageCode)
+    }
+  },
+
+  editingExistingTranslation() {
+    const data = Template.currentData()
+    const toLanguageCode = toLanguageCodeVar.get()
+    if (toLanguageCode) {
+      if (session.getLanguageData(data.owner, data.repo, toLanguageCode)) {
+        return true
+      }
+    }
+
   },
 
   baseLanguageName() {
@@ -64,157 +91,96 @@ Template.languages.helpers({
     }
   },
 
-  projectLanguages() {
-    return languageInfosVar.get()
-  },
+  toLanguageDatas() {
+    const data = Template.currentData()
 
-  projectLanguagesAsSentence() {
-    const languages = languageInfosVar.get()
-    const languageNames = languages.map((language) => {
-      return language.languageName
-    })
-    let sentence = languageNames.join(', ')
-    return sentence
-  },
-  
-  allLanguagesExceptProjectLanguages() {
-    const languages = getAllLanguages().filter((language) => {
-      return !isProjectLanguageCode(language.languageCode)
-    })
-    return languages
+    const allLanguages = getAllLanguages()
+    allLanguages.unshift({languageCode: "", languageName: "--- pick one ---"})
+    return allLanguages
   },
 
   hasMoreThanOneLanguage() {
-    return languageInfosVar.get().length > 1
+    const data = Template.currentData()
+    const languages = session.getLanguageDatas(data.owner, data.repo)
+    return languages.length > 1
   },
 
-
   projectLanguagesExceptBase() {
-    const projectLanguages = languageInfosVar.get()
-    const baseLanguageCode = $(".updateFromLanguageCode").val()
+    const data = Template.currentData()
+    const projectLanguages = session.getLanguageDatas(data.owner, data.repo)
+    const baseLanguageCode = baseLanguageCodeVar.get()
     if (baseLanguageCode) {
-      return languageInfosVar.get().filter((language) => {
-        return language.languageCode != baseLanguageCode
+      return projectLanguages.filter((projectLanguage) => {
+        return projectLanguage.languageCode != baseLanguageCode
       })
     } else {
       return projectLanguages
     }
   },
 
-  buttonClass() {
-    if (this.languageCode == selectedLanguageCodeVar.get()) {
-      return "btn-success"
-    } else {
-      return "btn-default"
-    }
-  },
-
-  repoNotFound() {
-    return repoNotFoundVar.get()
-  },
-  
-  parseError() {
-    return parseErrorVar.get()
-  },
-  
-  parseErrorLanguageInfo() {
-    return parseErrorLanguageInfoVar.get()
-  },
-
-  languageTileData() {
-    const languageInfo = this
-    console.log("languageInfo", languageInfo)
-    return {
-      languageInfo: languageInfo,
-      maxTextCount: getMaxTextCount()
+  createNewTranslationButtonDisabled() {
+    console.log("toLanguageCodeVar", toLanguageCodeVar.get())
+    if (!toLanguageCodeVar.get()) {
+      return "disabled"
     }
   }
   
 })
+
 
 Template.languages.events({
-  "click .createButton"() {
-
-    createNewTranslation()
-
-
+  "click .createNewTranslationButton"(evt) {
+    startTranslating()
   },
 
-  "click .gitHubSignInButton"() {
-    signInToGitHub()
+  "click .languageTile"(evt) {
+    const languageCode = $(evt.currentTarget).data("languagecode")
+    toLanguageCodeVar.set(languageCode)
+    showFormVar.set(true)
+  },
 
+  "click .newLanguageTile"() {
+    showFormVar.set(true)
+  },
 
+  "click .languageOverviewButton"() {
+    showFormVar.set(false)
+  },
+
+  "change .fromLanguageCode"(evt) {
+    const languageCode = $(evt.target).val()
+    fromLanguageCodeVar.set(languageCode)
+  },
+
+  "change .toLanguageCode"(evt) {
+    const languageCode = $(evt.target).val()
+    toLanguageCodeVar.set(languageCode)
   }
 })
 
-function isProjectLanguageCode(languageCode) {
-  return languageInfosVar.get().some((languageInfo) => {
-    return languageCode == languageInfo.languageCode
-  })
-}
-
-function getLanguageInfo(languageCode) {
-  console.log("getLanguageInfo", languageCode, languageInfosVar.get())
-  const result = languageInfosVar.get().find((languageInfo) => {
-    return languageCode == languageInfo.languageCode
-  })
-  console.log("result", result)
-  return result
-}
-
-function createNewTranslation() {
+function startTranslating() {
   const data = Template.currentData()
 
-  const baseLanguageInfo = getBaseLanguageInfo()
-  let fromLanguageCode
-  if (baseLanguageInfo) {
-    fromLanguageCode = baseLanguageInfo.languageCode
-  } else {
-    fromLanguageCode = $(".createFromLanguageCode").val()
-  }
-
-  const toLanguageCode = $(".createToLanguageCode").val()
-
-  loadingTextsVar.set(true)
-  parseErrorVar.set(null)
-  parseErrorLanguageInfoVar.set(null)
-  
-  clearError("languages", true)
-
-  const fromLanguageInfo = getLanguageInfo(fromLanguageCode)
-
-  Meteor.call("getLanguageDatas", data.owner, data.repo, fromLanguageInfo, toLanguageCode, getGitHubAccessToken(), function(err, languageDatas) {
-    loadingTextsVar.set(false)
-    if (err) {
-      if (err.error == "parseError") {
-        if (err.details) {
-          parseErrorVar.set(err.details)
-          parseErrorLanguageInfoVar.set(fromLanguageInfo)
-        }
-      } else {
-        setError("languages", "getLanguageDatas failed", err)
-      }
-      return
-    }
-    setLanguageData(data.owner, data.repo, fromLanguageCode, languageDatas.fromLanguage)
-    setLanguageData(data.owner, data.repo, toLanguageCode, languageDatas.toLanguage)
-    if (Object.getOwnPropertyNames(languageDatas.toLanguage.texts).length == 0) {
-      loadLanguageDataFromLocalStorage(data.owner, data.repo, toLanguageCode)
-    }
-
-    triggerGoogleTranslation(data.owner, data.repo, languageDatas.fromLanguage, toLanguageCode)
-
+  const fromLanguageCode = getFromLanguageCode(data)
+  const toLanguageCode = toLanguageCodeVar.get()
+  if (fromLanguageCode && toLanguageCode) {
     Router.go('translate', {
       owner: data.owner,
       repo: data.repo,
       fromLanguageCode: fromLanguageCode,
       toLanguageCode: toLanguageCode
     })
+  } else {
+    console.log("Hey, fromLanguage and toLanguage need to be selected!", fromLanguageCode, toLanguageCode)
+  }
+}
 
-
+function getMaxTextCount(languageDatas) {
+  let max = 0
+  languageDatas.forEach((languageData) => {
+    max = Math.max(max, languageData.textCount)
   })
-
-
+  return max
 }
 
 function getBaseLanguageInfo() {
@@ -228,10 +194,86 @@ function getBaseLanguageInfo() {
   })
 }
 
-function getMaxTextCount() {
-  let max = 0
-  languageInfosVar.get().forEach((languageInfo) => {
-    max = Math.max(max, languageInfo.textCount)
-  })
-  return max
+function isSame(a, b) {
+  if (!a || !b) {
+    return !a && !b
+  } else {
+    return a == b
+  }
 }
+
+function isSameLanguage(languageData1, languageData2) {
+  if (isEmptyLanguageData(languageData1) || isEmptyLanguageData(languageData2) ) {
+    return isEmptyLanguageData(languageData1) && isEmptyLanguageData(languageData2)
+  }
+
+  return languageData1.languageCode == languageData2.languageCode
+}
+
+function isEmptyLanguageData(languageData) {
+  return !languageData || !languageData.languageCode
+}
+
+/**
+ * Returns the explicitely selected fromLanguageCode, or
+ * the default fromLanguage if none has been selected.
+ * Never returns null.
+ */
+function getFromLanguageCode({owner, repo, baseLanguagePath}) {
+  const fromLanguageCode = fromLanguageCodeVar.get()
+  if (fromLanguageCode) {
+    return fromLanguageCode
+  } else {
+    return getDefaultFromLanguageCode({owner, repo, baseLanguagePath})
+  }
+}
+
+function getDefaultFromLanguageCode({owner, repo, baseLanguagePath}) {
+  const languageDatas = session.getLanguageDatas(owner, repo)
+  if (baseLanguagePath) {
+    //A base language has been explicitely set, so let's use that
+    const baseLanguageData = languageDatas.find((languageData) => {
+      return languageData.path == baseLanguagePath
+    })
+    if (baseLanguageData) {
+      return baseLanguageData.languageCode
+    } else {
+      throw new Error("Strange, no language matching baseLanguagePath " + baseLanguagePath)
+    }
+  } else {
+    //No base language was set. Let's filter the list down to those that are complete
+    const completeLanguages = getCompleteLanguages(languageDatas)
+    if (completeLanguages.length == 1) {
+      //Ah, there's only 1! Return that one.
+      return completeLanguages[0].languageCode
+    } else {
+      //There's more than one. Returns the oldest one.
+      return getOldestLanguage(languageDatas).languageCode
+    }
+  }
+}
+
+/**
+ * Returns the subset of the given languages that are "complete" (i.e. have the max number of texts)
+ */
+function getCompleteLanguages(languageDatas) {
+  const max = getMaxTextCount(languageDatas)
+  return languageDatas.filter((languageData) => {
+    return languageData.textCount == max
+  })
+}
+
+/**
+ * Returns the language with the oldest createdDate
+ */
+function getOldestLanguage(languageDatas) {
+  let oldest = null
+  languageDatas.forEach((languageData) => {
+    if (!oldest || (languageData.createdDate < oldest.createdDate)) {
+      oldest = languageData
+    }
+  })
+  return oldest
+}
+
+

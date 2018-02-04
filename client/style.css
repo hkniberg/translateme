@@ -89,6 +89,7 @@ h3 .badge {
     background: #f8f8f8;
     text-align: left;
     width: 200px;
+    height: 100px;
     white-space: normal;
     vertical-align: top;
     border-radius: 4px;
@@ -103,12 +104,6 @@ h3 .badge {
     background: #e6e6e6;
 }
 
-.languageTile .bg-danger {
-    margin-top: 4px;
-    margin-bottom: 2px;
-    padding: 2px;
-}
-
 .languageTile .languageName {
     font-weight: bolder;
     font-size: 18px;
@@ -119,4 +114,29 @@ h3 .badge {
 }
 .languageTile .languagePath {
     color: gray;
+}
+
+.newLanguageTile {
+    display: inline-block;
+    margin: 5px;
+    background: #f8f8f8;
+    text-align: left;
+    width: 200px;
+    height: 100px;
+    white-space: normal;
+    vertical-align: top;
+    border-radius: 4px;
+    padding: 5px;
+    border: 1px dashed #ccc;
+    line-height: 1.4;
+    cursor: pointer;
+}
+
+.newLanguageTile .languageName {
+    font-weight: bolder;
+    font-size: 18px;
+}
+
+.newLanguageTile:hover {
+    background: #e6e6e6;
 }

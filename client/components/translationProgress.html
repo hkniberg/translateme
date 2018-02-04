@@ -1,5 +1,5 @@
 <template name="translationProgress">
     <div class="progress progress-striped active" style="margin-bottom: 5px;">
-        <div class="progress-bar progress-bar-success" role="progressbar" data-transitiongoal="{{translatedTexts}}" aria-valuemax="{{totalTexts}}"></div>
+        <div class="progress-bar progress-bar-{{dangerOrSuccess}}" role="progressbar" data-transitiongoal="{{translatedTextCount}}" aria-valuemax="{{totalTextCount}}"></div>
     </div>
 </template>

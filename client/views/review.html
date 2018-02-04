@@ -2,22 +2,24 @@
     {{> error "review"}}
 
 
+
+
     {{#if loading}}
         <h1>Review translation</h1>
         <div>Loading stuff from github...</div>
         {{> spinner}}
     {{else}}
-        <h1>Review translation from {{fromLanguageName}} to {{toLanguageName}}</h1>
 
         {{#if repoNotFound}}
-            <h1>This project might be private</h1>
+            <h1>Review translation</h1>
+            <h2>This project might be private</h2>
 
-            <p>Either the project doesn't exist, or the project is non-public and you need to sign in.</p>
-            <div><button class="btn btn-primary gitHubSignInButton">Sign in to GitHub</button></div>
-
+            <p>Either {{toOwner}}/{{repo}} doesn't exist, or the project is non-public and you need to sign in.</p>
+            <div>{{> gitHubSignInButton}}</div>
         {{/if}}
 
         {{#if dataSuccessfullyLoaded}}
+            <h1>Review translation from {{fromLanguageName}} to {{toLanguageName}}</h1>
 
             <p>Check that the second and third columns contain roughly the same text.</p>
 

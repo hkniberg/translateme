@@ -1,6 +1,8 @@
-import {getLanguageData} from "../translationStatus";
+import {session} from "../session";
 /*
 Context:
+- owner
+- repo
 - fromLanguageCode
 - toLanguageCode
  */
@@ -16,7 +18,7 @@ Template.translationProgress.onRendered(function() {
   this.autorun(function() {
     //Autorunning this so that the progress bar gets updated
     //when the texts are updated
-    const toLanguageData = getLanguageData(data.owner, data.repo, toLanguageCode)
+    const texts = session.getEditedTexts(data.owner, data.repo, toLanguageCode)
     $('.progress .progress-bar').progressbar({
       display_text: 'center',
       use_percentage: false,
@@ -27,17 +29,44 @@ Template.translationProgress.onRendered(function() {
 })
 
 Template.translationProgress.helpers({
-  translatedTexts() {
-    if (this.toLanguageCode) {
-      const toLanguageData = getLanguageData(this.owner, this.repo, this.toLanguageCode)
-      return Object.getOwnPropertyNames(toLanguageData.texts).length
-    }
+  translatedTextCount() {
+    return translatedTextCount(Template.currentData())
   },
 
-  totalTexts() {
-    if (this.fromLanguageCode) {
-      const fromLanguageData = getLanguageData(this.owner, this.repo, this.fromLanguageCode)
-      return Object.getOwnPropertyNames(fromLanguageData.texts).length
+  totalTextCount() {
+    return totalTextCount(Template.currentData())
+  },
+
+  dangerOrSuccess() {
+    console.log("dangerOrSuccess")
+    const data = Template.currentData()
+    if (translatedTextCount(data) == totalTextCount(data)) {
+      return "success"
+    } else {
+      return "danger"
     }
   }
 })
+
+function translatedTextCount(data) {
+  if (data.toLanguageCode) {
+    const texts = session.getMergedTexts(data.owner, data.repo, data.toLanguageCode)
+    if (texts) {
+      console.log("texts", texts)
+      const count = Object.getOwnPropertyNames(texts).length
+      console.log("count", count)
+      return count
+    } else {
+      return 0
+    }
+  }
+}
+
+function totalTextCount(data) {
+  if (data.fromLanguageCode) {
+    const fromLanguageData = session.getLanguageData(data.owner, data.repo, data.fromLanguageCode)
+    if (fromLanguageData) {
+      return fromLanguageData.textCount
+    }
+  }
+}

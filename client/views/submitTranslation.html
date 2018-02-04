@@ -1,105 +1,113 @@
 <template name="submitTranslation">
     <h1>Submit your translation</h1>
 
-    <div class="row">
-        <div class="col col-xs-6">
+    {{> loadingStatus}}
 
-            {{#if submitting}}
-                <div>Doing some github voodoo...</div>
-                {{> spinner}}
-            {{else}}
-                {{#unless result}}
-                    {{#if signedInToGitHub}}
-                        <p>OK, I am about to send this translation to the project owner.
-                            Feel free to write a comment to them below.</p>
+    {{#if translationDoc}}
+        <div class="row">
+            <div class="col col-xs-6">
 
-
-                        <div><b>Comment:</b></div>
-                        <textarea class="commentInput">Hi! Here's a translation to {{toLanguageName}}.</textarea>
-                        <div><button class="btn btn-primary submitButton">Submit your translation via github</button></div>
-                    {{else}}
-                        <p>
-                            We could automatically send this translation directly to the devs as a github pull request.
-                            But you will need to sign in to github, or create an account there (it's easy).
-                        </p>
-                        <p>
-                            Or you can download the file and send it yourself (see link to the right).
-                        </p>
-                        <span><button class="btn btn-primary signIn">Sign in to github</button></span>
+                {{#if submitting}}
+                    <div>Doing some github voodoo...</div>
+                    {{> spinner}}
+                {{else}}
+                    {{#unless result}}
+                        {{#if signedInToGitHub}}
+                            <p>OK, I am about to send this translation to the project owner.
+                                Feel free to write a comment to them below.</p>
 
 
-                    {{/if}}
+                            <div><b>Comment:</b></div>
+                            <textarea class="commentInput">Hi! Here's a translation to {{toLanguageName}}.</textarea>
+                            <div><button class="btn btn-primary submitButton">Submit your translation via github</button></div>
+                        {{else}}
+                            <p>
+                                We could automatically send this translation directly to the devs as a github pull request.
+                                But you will need to sign in to github, or create an account there (it's easy).
+                            </p>
+                            <p>
+                                Or you can download the file and send it yourself (see link to the right).
+                            </p>
+                            {{> gitHubSignInButton}}
 
-
-
-
-
-                    <p><a class="btn btn-link" role="button" data-toggle="collapse" href="#whatWillHappen" aria-expanded="false" aria-controls="whatWillHappen">
-                        What will actually happen?
-                    </a>
-                    </p>
-                    <div class="collapse" id="whatWillHappen">
-                        <div class="well">
-                            So you want the techy details? OK. I will:
-                            <ol>
-                                <li>Fork the project to your github account.</li>
-                                <li>Commit this language file to your repo.</li>
-                                <li>Create a pull request on the original repo.</li>
-                                <li>Hopefully the devs will get some kind of notification. Otherwise ping them.</li>
-                            </ol>
-                        </div>
-                    </div>
-
-                {{/unless}}
-            {{/if}}
-
-            {{#if result}}
-                <div class="alert alert-success">
-                    <b>Done!</b><br>
-                    Your translation has been sent.<br>
-                    {{#if pullRequestUrl}}
-                        <p><a href="{{pullRequestUrl}}" target="github">Here is what the owner received</a></p>
-                    {{else}}
-                        {{#if commitUrl}}
-                            <p>Here is a <a href="{{commitUrl}}" target="github">Link to your commit</a> if you are curious.</p>
                         {{/if}}
-                    {{/if}}
-                </div>
 
-                <a class="btn btn-link" role="button" data-toggle="collapse" href="#goryDetails" aria-expanded="false" aria-controls="goryDetails">
-                    See the gory technical details
-                </a>
-                <div class="collapse" id="goryDetails">
-                    <div class="well">
-                        <div class="log">
-                            <ul>
-                                {{#each log}}
-                                    <li>{{this}}</li>
-                                {{/each}}
-                            </ul>
+
+
+
+
+                        <p><a class="btn btn-link" role="button" data-toggle="collapse" href="#whatWillHappen" aria-expanded="false" aria-controls="whatWillHappen">
+                            What will actually happen?
+                        </a>
+                        </p>
+                        <div class="collapse" id="whatWillHappen">
+                            <div class="well">
+                                So you want the techy details? OK. I will:
+                                <ol>
+                                    <li>Fork the project to your github account.</li>
+                                    <li>Commit this language file to your repo.</li>
+                                    <li>Create a pull request on the original repo.</li>
+                                    <li>Hopefully the devs will get some kind of notification. Otherwise ping them.</li>
+                                </ol>
+                            </div>
+                        </div>
+
+                    {{/unless}}
+                {{/if}}
+
+                {{#if result}}
+                    <div class="alert alert-success">
+                        <b>Done!</b><br>
+                        Your translation has been sent.<br>
+                        {{#if pullRequestUrl}}
+                            <p><a href="{{pullRequestUrl}}" target="github">Here is what the owner received</a></p>
+                        {{else}}
+                            {{#if commitUrl}}
+                                <p>Here is a <a href="{{commitUrl}}" target="github">Link to your commit</a> if you are curious.</p>
+                            {{/if}}
+                        {{/if}}
+                    </div>
+
+                    <a class="btn btn-link" role="button" data-toggle="collapse" href="#goryDetails" aria-expanded="false" aria-controls="goryDetails">
+                        See the gory technical details
+                    </a>
+                    <div class="collapse" id="goryDetails">
+                        <div class="well">
+                            <div class="log">
+                                <ul>
+                                    {{#each log}}
+                                        <li>{{this}}</li>
+                                    {{/each}}
+                                </ul>
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                <div>
-                    <button class="btn btn-link translateToAnother">Translate this to another language</button>
-                </div>
+                    <div>
+                        <button class="btn btn-link translateToAnother">Translate this to another language</button>
+                    </div>
 
-            {{/if}}
+                {{/if}}
 
-            {{> error "submitTranslation"}}
+                {{> error "submitTranslation"}}
+
+            </div>
+
+            <div class="col col-xs-6">
+                <p>Here is the language file we'll send</p>
+                <div><button class="btn btn-link downloadButton">{{translationDoc.fileName}}</button></div>
+                <div class="translationPreview">{{translationDoc.fileContent}}</div>
+
+            </div>
+
 
         </div>
 
-        <div class="col col-xs-6">
-            <p>Here is the language file we'll send</p>
-            <div><button class="btn btn-link downloadButton">{{translationDoc.fileName}}</button></div>
-            <div class="translationPreview">{{translationDoc.fileContent}}</div>
 
-        </div>
+    {{/if}}
 
 
-    </div>
+
 
 
 

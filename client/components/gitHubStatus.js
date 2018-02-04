@@ -1,5 +1,5 @@
 import {getGitHubAccessToken} from "../authentication";
-import {signInToGitHub} from "../gitHubClientUtil";
+import {signInToGitHub} from "../authentication";
 Template.gitHubStatus.helpers({
   gitHubAccessToken() {
     return getGitHubAccessToken()

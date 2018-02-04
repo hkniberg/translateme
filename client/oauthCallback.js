@@ -1,10 +1,8 @@
-import {Session} from "meteor/session"
-import {setError} from "./helpers";
-import {clearError} from "./helpers";
 import {setGitHubAccessToken} from "./authentication";
+import {session} from "./session"
 
 Template.oauthCallback.onRendered(function() {
-  clearError("oauthCallback")
+  session.clearError("oauthCallback")
   const query = Router.current().params.query
   const code = query.code
 
@@ -12,7 +10,7 @@ Template.oauthCallback.onRendered(function() {
 
   Meteor.call("requestGitHubAccessToken", code, function(err, token) {
     if (err) {
-      setError("oauthCallback", "Something went wrong when calling getGitHubAccessToken", err)
+      session.setError("oauthCallback", "Something went wrong when calling getGitHubAccessToken", err)
       return
     }
     setGitHubAccessToken(token)

@@ -1,29 +1,28 @@
-import {clearError} from "./../helpers";
-import {setError} from "./../helpers";
 import {getGitHubAccessToken} from "./../authentication";
 import {getLanguageName} from "../../lib/data/languages";
-import {getLanguageData} from "./../translationStatus";
 import {downloadLanguageFile} from "./../helpers";
-import {signInToGitHub} from "./../gitHubClientUtil";
 import {isSignedInToGitHub} from "./../authentication";
 import {getLanguageFileData} from "../helpers";
+import {session} from "../session"
+import {storage} from "../storage"
+import {getParentOfFile} from "../../lib/util";
 
 const submittingVar = new ReactiveVar(false)
 const resultVar = new ReactiveVar(false)
 
 
 Template.submitTranslation.onRendered(function() {
-  clearError("submitTranslation")
+  session.clearError("submitTranslation")
+  resultVar.set(false)
+  submittingVar.set(false)
+
   const data = Template.currentData()
   console.assert(data.owner, "Missing owner")
   console.assert(data.repo, "Missing repo")
   console.assert(data.fromLanguageCode, "Missing owner")
   console.assert(data.toLanguageCode, "Missing owner")
 
-  if (!getLanguageData(data.owner, data.repo, data.toLanguageCode)) {
-    Router.go('/')
-    console.log("Darn! Looks like your session has expired!")
-  }
+  session.loadEditedTextsFromStorage(data.owner, data.repo, data.toLanguageCode)
 })
 
 
@@ -64,7 +63,7 @@ Template.submitTranslation.helpers({
      {fileName: ...., fileContent: ....}
    */
   translationDoc() {
-    return getLanguageFileData(this.owner, this.repo, this.toLanguageCode)
+    return getLanguageFileData(this.owner, this.repo, this.fromLanguageCode, this.toLanguageCode)
   },
 
   toLanguageName() {
@@ -83,40 +82,44 @@ Template.submitTranslation.events({
 
   "click .downloadButton"() {
     const data = Template.currentData()
-    downloadLanguageFile(data.owner, data.repo, data.toLanguageCode)
-  },
-  
-  "click .signIn"() {
-    signInToGitHub()
+    downloadLanguageFile(data.owner, data.repo, data.fromLanguageCode, data.toLanguageCode)
   },
 
   "click .translateToAnother"() {
+    const data = Template.currentData()
+    session.removeLanguageDatas(data.owner, data.repo)
     Router.go("languages", {repo: this.repo, owner: this.owner})
   }
 })
 
 function submit() {
-  clearError("submitTranslation")
+  session.clearError("submitTranslation")
   const data = Template.currentData()
-  const toLanguageData = getLanguageData(data.owner, data.repo, data.toLanguageCode)
-  const comment = $(".commentInput").val()
+  const commitComment = $(".commentInput").val()
   submittingVar.set(true)
   resultVar.set(null)
 
-  const fromLanguageData = getLanguageData(data.owner, data.repo, data.fromLanguageCode)
-  const fromLanguageInfo = {
-    languageCode: fromLanguageData.languageCode,
-    languageName: fromLanguageData.languageName,
-    path: fromLanguageData.path,
-    fileFormat: fromLanguageData.fileFormat
-  }
+  const fromLanguageData = session.getLanguageData(data.owner, data.repo, data.fromLanguageCode)
 
-  Meteor.call("submitTranslation", data.owner, data.repo, fromLanguageInfo, data.toLanguageCode, toLanguageData.texts, comment,  getGitHubAccessToken(), function(err, result) {
+  const mergedTranslation = session.getMergedTexts(data.owner, data.repo, data.toLanguageCode)
+
+  const params = {
+    owner: data.owner,
+    repo: data.repo,
+    fileFormat: fromLanguageData.fileFormat,
+    fromLanguageFile: fromLanguageData.path,
+    toLanguageCode: data.toLanguageCode,
+    texts: mergedTranslation,
+    commitComment: commitComment,
+    gitHubAccessToken: getGitHubAccessToken()
+  }
+  Meteor.call("submitTranslation", params, function(err, result) {
     submittingVar.set(false)
     if (err) {
-      setError("submitTranslation", "The git voodoo failed! Sometimes it fails the first time and works the second time, not sure why. So try again!", err)
+      session.setError("submitTranslation", "The git voodoo failed! Wonder why? Well, anyway, you can still download your translation and email it to the project owners.", err)
       return
     }
+    storage.removeTexts(data.owner, data.repo, data.toLanguageCode)
     resultVar.set(result)
   })
 }
