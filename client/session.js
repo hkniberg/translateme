@@ -42,8 +42,6 @@ export const session = {
 
   //Also saves to storage
   setEditedTexts(owner, repo, languageCode, texts) {
-    console.log("setEditedTexts", languageCode, texts)
-    console.log("setEditedTexts", texts)
     check(owner, String)
     check(repo, String)
     check(languageCode, String)
@@ -54,7 +52,6 @@ export const session = {
   },
 
   setEditedText(owner, repo, languageCode, key, text) {
-    console.log("setEditedText", languageCode, key, text)
     check(owner, String)
     check(repo, String)
     check(languageCode, String)
@@ -68,14 +65,11 @@ export const session = {
 
     const oldText = this.getLanguageText(owner, repo, languageCode, key)
     if (isSameText(text, oldText)) {
-      console.log("Ah, edited text is same as original text. So I'll remove the edited text")
       delete editedTexts[key]
     } else {
       if (!text || text.trim() == "") {
-        console.log("Setting edited text to empty string")
         editedTexts[key] = ""
       } else {
-        console.log("Setting edited text to " + text)
         editedTexts[key] = text
       }
     }
@@ -104,8 +98,6 @@ export const session = {
   //Returns true if there was something to load
   loadEditedTextsFromStorage(owner, repo, languageCode) {
     const texts = storage.loadTexts(owner, repo, languageCode)
-    console.log("loadEditedTextsFromStorage", languageCode)
-    console.log("loaded", texts)
     if (texts) {
       Session.set("editedTexts-" + owner + "-" + repo + "-" + languageCode, texts)
       return true
@@ -222,8 +214,6 @@ export const session = {
   },
 
   getMergedTexts(owner, repo, fromLanguageCode, toLanguageCode) {
-    console.log("getMergedTranslation")
-
     const fromLanguageData = this.getLanguageData(owner, repo, fromLanguageCode)
 
     const toLanguageData = this.getLanguageData(owner, repo, toLanguageCode)

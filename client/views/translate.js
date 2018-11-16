@@ -6,7 +6,8 @@ import {session} from "../session"
 import {storage} from "../storage"
 import {getLanguageFileData} from "../helpers";
 
-const editedTextsVar = new ReactiveVar({})
+const hiddenRowsVar = new ReactiveVar(0)
+
 
 /*
 Expected data context:
@@ -46,6 +47,10 @@ Template.translate.helpers({
   manyTexts() {
     const keys = getTextKeys(this.owner, this.repo, this.fromLanguageCode)
     return keys && keys.length > 10
+  },
+  
+  hiddenRows() {
+    return hiddenRowsVar.get()
   },
   
   
@@ -89,8 +94,24 @@ Template.translate.helpers({
     return getLanguageFileData(this.owner, this.repo, this.fromLanguageCode, this.toLanguageCode)
   },
 
-  borderClass() {
-    //TODO
+  translationTextAreaClass() {
+    const key = this
+    const data = Template.parentData()
+    const toLanguageCode = data.toLanguageCode
+    const editedText = session.getEditedText(data.owner, data.repo, toLanguageCode, key)
+    const originalText = session.getLanguageText(data.owner, data.repo, toLanguageCode, key)
+
+    if (editedText == null) {
+      if (!originalText) {
+        //Text hasn't been edited, and original is empty.
+        return "emptyTextArea"
+      }
+    } else {
+      if (editedText == "") {
+        //Text has been edited, and it is empty
+        return "emptyTextArea"
+      }
+    }
   },
 
   fromLanguageText() {
@@ -123,6 +144,24 @@ Template.translate.helpers({
 })
 
 Template.translate.events({
+  "click .hideCompletedRowsButton"() {
+    let hiddenRows = 0
+    $(".translationTextArea").each(function() {
+      const textArea = $(this)
+      if (textArea.val()) {
+        textArea.parent().parent().parent().css("display", "none")
+        ++hiddenRows
+      }
+    })
+    console.log("Set hidden rows to " + hiddenRows)
+    hiddenRowsVar.set(hiddenRows)
+  },
+
+  "click .showAllRowsButton"() {
+    $(".translationRow").css("display", "")
+    hiddenRowsVar.set(0)
+  },
+
   "blur .translationTextArea"(event) {
     const data = Template.currentData()
     const toLanguageCode = data.toLanguageCode

@@ -33,7 +33,14 @@
             <div class="col col-xs-4">
                 <h3>{{toLanguageName}} translation</h3>
                 <div>{{> translationProgress this}}</div>
-
+                <div class="margin-bottom">
+                    {{#if hiddenRows}}
+                        <span class="text-muted">{{hiddenRows}} rows hidden</span>
+                        <button class="btn btn-xs btn-primary showAllRowsButton">Show all rows</button>
+                    {{else}}
+                        <button class="btn btn-xs btn-primary hideCompletedRowsButton">Hide completed rows</button>
+                    {{/if}}
+                </div>
             </div>
             <div class="col col-xs-4">
                 <h3>Google translation</h3> (if available)
@@ -41,7 +48,7 @@
         </div>
 
         {{#each textKeys}}
-            <div class="row">
+            <div class="row translationRow" data-key="{{this}}">
                 <div class="col col-xs-4">
                     <div class="well well-sm">
                         <div class="translationText">{{fromLanguageText}}</div>
@@ -51,7 +58,7 @@
                     <div class="{{maybeRightToLeft}}">
                     <textarea
                             rows="{{rowCountToUseForTranslatedText}}"
-                            class="translationTextArea {{borderClass}}"
+                            class="translationTextArea {{translationTextAreaClass}}"
                             data-key="{{this}}"
                             placeholder="Type your translation here, or leave it blank to use the {{fromLanguageName}} text...">{{toLanguageText}}</textarea>
                     </div>

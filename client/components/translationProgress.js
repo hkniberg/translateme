@@ -38,7 +38,6 @@ Template.translationProgress.helpers({
   },
 
   dangerOrSuccess() {
-    console.log("dangerOrSuccess")
     const data = Template.currentData()
     if (translatedTextCount(data) == totalTextCount(data)) {
       return "success"
@@ -52,9 +51,7 @@ function translatedTextCount(data) {
   if (data.toLanguageCode) {
     const texts = session.getMergedTexts(data.owner, data.repo, data.fromLanguageCode, data.toLanguageCode)
     if (texts) {
-      console.log("texts", texts)
       const count = Object.getOwnPropertyNames(texts).length
-      console.log("count", count)
       return count
     } else {
       return 0

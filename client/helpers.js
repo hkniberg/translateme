@@ -14,8 +14,6 @@ Template.registerHelper('repo', function() {
 
 Template.registerHelper('languageDatas', function() {
   const data = Template.currentData()
-  console.log("template", Template.instance().view.name)
-  console.log("data", data)
   return session.getLanguageDatas(data.owner, data.repo)
 })
 
@@ -58,9 +56,7 @@ return {fileName: xxx, fileContent: yyy} (both strings),
 or null if fromLanguageData has not yet been loaded in the session
  */
 export function getLanguageFileData(owner, repo, fromLanguageCode, toLanguageCode) {
-  console.log("getLanguageFileData", owner, repo, fromLanguageCode, toLanguageCode)
   const mergedTexts = session.getMergedTexts(owner, repo, fromLanguageCode, toLanguageCode)
-  console.log("editedTexts", mergedTexts)
 
   const fromLanguageData = session.getLanguageData(owner, repo, fromLanguageCode)
   if (fromLanguageData) {
@@ -82,8 +78,6 @@ export function downloadLanguageFile(owner, repo, fromLanguageCode, toLanguageCo
   check(fromLanguageCode, String)
   check(toLanguageCode, String)
 
-  console.log("downloadLanguageFile", fromLanguageCode, toLanguageCode)
-
   const fileData = getLanguageFileData(owner, repo, fromLanguageCode, toLanguageCode)
 
   const href = 'data:application/json;charset=utf-8,'+ encodeURIComponent(fileData.fileContent);
@@ -104,9 +98,7 @@ export function triggerGoogleTranslationIfNeeded(owner, repo, fromLanguageData, 
   keys.forEach((key) => {
     const fromLanguageText = fromLanguageData.texts[key]
     if (!getCachedGoogleTranslation(owner, repo, key, fromLanguageCode, toLanguageCode)) {
-      //console.log("Calling googleTranslate")
       Meteor.call('googleTranslate', fromLanguageText, fromLanguageCode, toLanguageCode, function(err, translatedText) {
-        //console.log("result", err, translatedText)
         if (err || !translatedText) {
           translatedText = ""
         }
