@@ -23,7 +23,7 @@ Template.translate.onRendered(function() {
   console.assert(data.fromLanguageCode, "fromLanguageCode missing")
   console.assert(data.toLanguageCode, "toLanguageCode missing")
 
-
+  hiddenRowsVar.set(0)
   session.clearError("translate")
 
   session.loadEditedTextsFromStorage(data.owner, data.repo, data.toLanguageCode)
