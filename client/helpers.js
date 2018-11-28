@@ -3,13 +3,26 @@ import {getPluginByName} from "../lib/initPlugins"
 import {cacheGoogleTranslation} from "./googleTranslationCache";
 import {getCachedGoogleTranslation} from "./googleTranslationCache";
 import {session} from "./session"
+import {isSignedInToGitHub} from "./authentication";
 
 Template.registerHelper('owner', function() {
-  return Template.currentData().owner
+  if (Template.currentData() && Template.currentData().owner) {
+    return Template.currentData().owner
+  } else {
+    return session.getOwner()
+  }
 })
 
 Template.registerHelper('repo', function() {
-  return Template.currentData().repo
+  if (Template.currentData() && Template.currentData().repo) {
+    return Template.currentData().repo
+  } else {
+    return session.getRepo()
+  }
+})
+
+Template.registerHelper('isSignedIn', function() {
+  return isSignedInToGitHub()
 })
 
 Template.registerHelper('languageDatas', function() {

@@ -1,0 +1,23 @@
+<template name="cantAccessGitHubProject">
+
+    <div class="alert alert-warning">
+
+        {{#if isSignedIn}}
+            <h2 style="margin-top: 0px">Darn! Can't access this github project!</h2>
+            <p>
+                Either the project doesn't exist,
+                or you don't have access rights to it (in which case you need to contact the owner).
+            </p>
+        {{else}}
+            <h2 style="margin-top: 0px">GitHub sign in is probably needed</h2>
+            <p>
+                Either the project doesn't exist,
+                or it is private and you need to sign in to github.
+            </p>
+            <div>{{> gitHubSignInButton}}</div>
+        {{/if}}
+        <p class="margin-top">You can test this by surfing to it directly on github: <a target="github" href="https://github.com/{{owner}}/{{repo}}">https://github.com/{{owner}}/{{repo}}</a></p>
+
+    </div>
+
+</template>

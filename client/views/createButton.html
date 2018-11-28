@@ -2,11 +2,7 @@
     <h1>Create button</h1>
 
     {{#if repoNotFound}}
-        <div class="alert alert-warning">
-            <h2 style="margin-top: 0px">This project might be private</h2>
-            <p>Either the project doesn't exist, or the project is non-public and you need to sign in.</p>
-            <div>{{> gitHubSignInButton}}</div>
-        </div>
+        {{> cantAccessGitHubProject}}
     {{/if}}
 
     <p>Wouldn't it be great if people could easily translate your github project?</p>

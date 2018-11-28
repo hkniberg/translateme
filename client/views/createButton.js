@@ -56,6 +56,9 @@ Template.createButton.events({
     }
     const owner = parsedUrl.owner
     const repo = parsedUrl.repo
+    session.setOwner(owner)
+    session.setRepo(repo)
+    
     const path = parsedUrl.path
     if (!path) {
       session.setError("createButton", "Your GitHub URL needs to point all the way to a specific file")

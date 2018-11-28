@@ -9,10 +9,7 @@
 
         {{#if repoNotFound}}
             <h1>Review translation</h1>
-            <h2>This project might be private</h2>
-
-            <p>Either {{toOwner}}/{{repo}} doesn't exist, or the project is non-public and you need to sign in.</p>
-            <div>{{> gitHubSignInButton}}</div>
+            {{> cantAccessGitHubProject}}
         {{/if}}
 
         {{#if dataSuccessfullyLoaded}}

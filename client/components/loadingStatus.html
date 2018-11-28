@@ -6,11 +6,7 @@
         {{> spinner}}
     {{else}}
         {{#if repoNotFound}}
-            <div class="alert alert-warning">
-                <h2 style="margin-top: 0px">This project might be private</h2>
-                <p>Either the project doesn't exist, or the project is non-public and you need to sign in.</p>
-                <div>{{> gitHubSignInButton}}</div>
-            </div>
+            {{> cantAccessGitHubProject }}
             <div><a href="/selectProjectToTranslate">Select another project</a></div>
         {{else}}
             {{#unless languageDatas.length}}

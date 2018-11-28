@@ -212,6 +212,22 @@ export const session = {
   setRepoNotFound(repoNotFound) {
     Session.set("repoNotFound", repoNotFound)
   },
+  
+  setRepo(repo) {
+    Session.set("repo", repo)
+  },
+  
+  getRepo() {
+    return Session.get("repo")
+  },
+  
+  setOwner(owner) {
+    Session.set("owner", owner)
+  },
+  
+  getOwner() {
+    return Session.get("owner")
+  },
 
   getMergedTexts(owner, repo, fromLanguageCode, toLanguageCode) {
     const fromLanguageData = this.getLanguageData(owner, repo, fromLanguageCode)

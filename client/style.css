@@ -4,6 +4,10 @@ body {
     background-repeat: repeat;
 }
 
+.margin-top {
+    margin-top: 5px;
+}
+
 .margin-bottom {
     margin-bottom: 5px;
 }
